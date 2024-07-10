@@ -29,7 +29,7 @@ HVG_splinefit <- function(X = x, QC = T,
                           use.ndist = T){
 
   # Check if object is SeuratObject
-  if (is(X) != "Seurat"){
+  if (is(X) == "Seurat"){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))
@@ -165,7 +165,7 @@ HVG_splinefit <- function(X = x, QC = T,
 HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 
   # Check if object is SeuratObject
-  if (is(X) != "Seurat"){
+  if (is(X) == "Seurat"){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))

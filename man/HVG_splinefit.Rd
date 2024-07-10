@@ -17,11 +17,33 @@ HVG_splinefit(
   use.ndist = T
 )
 }
+\arguments{
+\item{X}{Count matrix or SeuratObject}
+
+\item{QC}{A Boolean value (TRUE/FALSE), if TRUE, a quality control is applied over the data.}
+
+\item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
+
+\item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
+
+\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+
+\item{degf}{An integer value. Degrees of freedom for the Spline.}
+
+\item{spar}{A double value. Smoothing parameter for Spline}
+
+\item{nHVGs}{An integer value. Number of top Highly Variable Genes (HVGs) to select.}
+
+\item{show.spline}{A Boolean value (TRUE/FALSE), if TRUE, shows the 3D Spline as Plotly figure.}
+
+\item{use.ndist}{A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.}
+}
+\value{
+A DataFrame with HVG selection Statistics
+}
 \description{
-Compute Highly Variable Genes
+Compute Highly Variable Genes from an scRNAseq expression data.
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>
-Spline HVG function
-This function computed highly variable genes from an scRNAseq count matrix.
 }

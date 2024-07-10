@@ -6,6 +6,13 @@
 \usage{
 HVG_QC(X = x, nfeatures = 500, ncells = 15, mt.perc = 15)
 }
+\arguments{
+\item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
+
+\item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
+
+\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+}
 \value{
 QC filtered SeuratObject
 }

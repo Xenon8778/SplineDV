@@ -4,14 +4,18 @@
 \alias{DV_splinefit}
 \title{Spline-DV}
 \usage{
-DV_splinefit(
-  X = x,
-  Y = y,
-  nfeatures = 500,
-  ncells = 15,
-  mt.perc = 15,
-  nHVGs = 2000
-)
+DV_splinefit(X = x, Y = y, nfeatures = 500, ncells = 15, mt.perc = 15)
+}
+\arguments{
+\item{X}{Count matrix or SeuratObject (Test sample)}
+
+\item{Y}{Count matrix or SeuratObject (Control sample)}
+
+\item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
+
+\item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
+
+\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 }
 \value{
 A DataFrame with DV Statistics
