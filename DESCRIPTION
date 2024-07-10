@@ -1,0 +1,25 @@
+Package: SplineDV
+Type: Package
+Title: Differential Variability (DV) analysis for single-cell RNA sequencing data
+Description: A spline based scRNA-seq method for identifying differentially variable (DV) genes across two experimental conditions.
+Version: 0.1.0
+Authors@R: c(person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu.edu", role = c("aut","cre"), comment = c(ORCID = '0000-0002-1904-9862')),
+          person(given = "James", family = "Cai", role = "aut", comment = c(ORCID = '0000-0002-8081-6725')),
+          person(given = "Selim", family = "Romero", role = "aut", comment = c(ORCID = '0000-0002-8081-6725'))
+          )
+Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
+URL: https://github.com/Xenon8778/SplineDV
+License: GPL (>=2)
+Encoding: UTF-8
+LazyData: true
+biocViews: 
+Remotes: bioc::release/Biobase, bioc::release/sparseMatrixStats
+Imports: plotly,
+  dplyr,
+  Seurat,
+  methods,
+  Biobase,
+  sparseMatrixStats,
+  Matrix (>= 1.6.4),
+  utils
+RoxygenNote: 7.3.1
