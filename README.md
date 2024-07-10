@@ -1,6 +1,10 @@
 # SplineDV
 A spline-based scRNA-seq method for identifying differentially variable (DV) genes across two experimental conditions.
 
+# Installation 
+```R
+devtools::install_github("Xenon8778/SplineDV")
+```
 # Example
 ```R
 so = readRDS('data/Nkx2-1_ENDO.rds')
