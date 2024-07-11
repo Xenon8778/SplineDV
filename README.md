@@ -1,7 +1,7 @@
-# SplineDV
+# Spline-DV
 A spline-based scRNA-seq method for identifying differentially variable (DV) genes across two experimental conditions.
 
-# Why to use SplineDV?
+# Why to use Spline-DV?
 One of the most intuitive ways to evaluate a gene expression change is using Differential Expression (DE) analysis. Traditionally, DE analysis focuses on identifying genes that are up- or down-regulated (increased or decreased expression) between conditions, typically employing a basic mean-difference approach. We propose a paradigm shift that acknowledges the central role of gene expression variability in cellular function and challenges the current dominance of mean-based DE analysis in single-cell studies. We suggest that scRNA-seq data analysis should embrace the role of inherent gene expression variability in defining cellular function and move beyond mean-based approaches. 
 
 # Installation 
