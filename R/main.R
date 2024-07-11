@@ -253,7 +253,7 @@ DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
     mutate(dist_diff = dist1 - dist2) %>%
     mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
     mutate(Direction = dist_diff/abs(dist_diff)) %>%
-    mutate(Z= as.numeric(scale(Spline_Dist))) %>%
+    mutate(Z= as.numeric(scale(Vector_Dist))) %>%
     mutate(Pval = 2*pnorm(abs(Z),lower.tail = F)) %>%
     arrange(Pval)
 
