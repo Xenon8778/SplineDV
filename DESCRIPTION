@@ -1,6 +1,6 @@
 Package: SplineDV
 Type: Package
-Title: Differential Variability (DV) analysis for single-cell RNA sequencing data
+Title: Differential Variability (DV) analysis for single-cell RNA sequencing data. (e.g. Identify Differentially Variable Genes across two experimental conditions)
 Description: A spline based scRNA-seq method for identifying differentially variable (DV) genes across two experimental conditions.
 Version: 0.1.0
 Authors@R: c(person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu.edu", role = c("aut","cre"), comment = c(ORCID = '0000-0002-1904-9862')),
@@ -22,4 +22,5 @@ Imports: plotly,
   sparseMatrixStats,
   Matrix (>= 1.6.4),
   utils
+VignetteBuilder: knitr
 RoxygenNote: 7.3.1

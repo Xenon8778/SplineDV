@@ -29,7 +29,7 @@ HVG_splinefit <- function(X = x, QC = T,
                           use.ndist = T){
 
   # Check if object is SeuratObject
-  if (is(X) == "Seurat"){
+  if (class(X) == "Seurat"){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))
@@ -165,7 +165,7 @@ HVG_splinefit <- function(X = x, QC = T,
 HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 
   # Check if object is SeuratObject
-  if (is(X) == "Seurat"){
+  if (class(X) == "Seurat"){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))
@@ -252,15 +252,13 @@ DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
   DV_res = df %>% as_tibble %>%
     mutate(dist_diff = dist1 - dist2) %>%
     mutate(Spline_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
-    mutate(Direction = (dist1 - dist2)/abs(dist1 - dist2)) %>%
+    mutate(Direction = dist_diff/abs(dist_diff)) %>%
     mutate(Z= as.numeric(scale(Spline_Dist))) %>%
     mutate(Pval = 2*pnorm(abs(Z),lower.tail = F)) %>%
     arrange(Pval)
 
   res_out = DV_res %>% select(genes,mu1,mu2,CV1,CV2,drop1,drop2,dist1,dist2,
-                              dist_diff,X_dvecx,X_dvecy,X_dvecz,
-                              Y_dvecx,Y_dvecy,Y_dvecz,Spline_Dist,
-                              Direction,Z,Pval) %>% as.data.frame()
+                              Spline_Dist,Direction,Pval) %>% as.data.frame()
   output = list(HVG_X = res_X, HVG_Y = res_Y, DV = res_out)
   return(res_out)
 }
