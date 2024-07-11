@@ -124,10 +124,10 @@ HVG_splinefit <- function(X = x, QC = T,
   splinefit_df$splinex = xyz1$logMean
   splinefit_df$spliney = xyz1$logCV
   splinefit_df$splinez = xyz1$Dropout
+  splinefit_df$Distance[splinefit_df$Dropout > 0.95 | splinefit_df$Dropout < 0.01] = 0
   top_HVG = splinefit_df %>% top_n(n = nHVGs, wt = Distance)
   mask = rownames(splinefit_df) %in% rownames(top_HVG)
   splinefit_df$HVG = mask
-  splinefit_df$Distance[splinefit_df$Dropout > 0.95 | splinefit_df$Dropout < 0.01] = 0
   splinefit_df = splinefit_df %>% arrange(Dropout)
 
   # Plotting in 3D
