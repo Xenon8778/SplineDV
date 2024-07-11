@@ -7,8 +7,10 @@ devtools::install_github("Xenon8778/SplineDV")
 ```
 # Example
 ```R
-so = readRDS('data/Nkx2-1_ENDO.rds')
-so_WT = subset(so, subset = Batch == 'WT')
-so_KO = subset(so, subset = Batch == 'KO')
-DV_res = DV_splinefit(so_KO,so_WT)
+# Load Data
+library(SplineDV)
+exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+head(DV_res)
 ```
