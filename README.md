@@ -6,6 +6,7 @@ One of the most intuitive ways to evaluate a gene expression change is using Dif
 
 # Installation 
 ```R
+if (!require("devtools")) install.packages("devtools")
 devtools::install_github("Xenon8778/SplineDV")
 ```
 # Tutorial - Spline-DV
