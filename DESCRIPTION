@@ -22,5 +22,6 @@ Imports: plotly,
   sparseMatrixStats,
   Matrix (>= 1.6.4),
   utils
+Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.3.1

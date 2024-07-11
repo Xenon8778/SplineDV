@@ -251,14 +251,14 @@ DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
   # Computing Diff Distance
   DV_res = df %>% as_tibble %>%
     mutate(dist_diff = dist1 - dist2) %>%
-    mutate(Spline_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
+    mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
     mutate(Direction = dist_diff/abs(dist_diff)) %>%
     mutate(Z= as.numeric(scale(Spline_Dist))) %>%
     mutate(Pval = 2*pnorm(abs(Z),lower.tail = F)) %>%
     arrange(Pval)
 
   res_out = DV_res %>% select(genes,mu1,mu2,CV1,CV2,drop1,drop2,dist1,dist2,
-                              Spline_Dist,Direction,Pval) %>% as.data.frame()
+                              Vector_Dist,Direction,Pval) %>% as.data.frame()
   output = list(HVG_X = res_X, HVG_Y = res_Y, DV = res_out)
   return(res_out)
 }
