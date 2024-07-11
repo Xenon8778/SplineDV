@@ -15,7 +15,7 @@ output:
     
 vignette: >
   %\VignetteIndexEntry{Introduction to Spline-DV}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -69,6 +69,7 @@ For the analysis, the test data (X) is always use in contrast with the control d
 ```{r runSplineDV, results='hide'}
 library(SplineDV)
 DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+head(DV_res)
 ```
 
 ```{r showResults, echo=FALSE}
@@ -120,11 +121,12 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
 ```
 ## Running Spline-HVG
-```{r runSplineHVG, results='hide', fig.show='animate'}
+```{r runSplineHVG, results='hide'}
 HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+head(HVG_res)
 ```
 
-```{r showHVGResults}
+```{r showHVGResults, echo=FALSE}
 head(HVG_res)
 ```
 
