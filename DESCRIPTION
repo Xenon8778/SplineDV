@@ -5,7 +5,7 @@ Description: A spline based scRNA-seq method for identifying differentially vari
 Version: 0.1.0
 Authors@R: c(person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu.edu", role = c("aut","cre"), comment = c(ORCID = '0000-0002-1904-9862')),
           person(given = "James", family = "Cai", role = "aut", comment = c(ORCID = '0000-0002-8081-6725')),
-          person(given = "Selim", family = "Romero", role = "aut", comment = c(ORCID = '0000-0002-8081-6725'))
+          person(given = "Selim", family = "Romero", role = "aut", comment = c(ORCID = '0000-0002-2401-6272'))
           )
 Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
 URL: https://github.com/Xenon8778/SplineDV

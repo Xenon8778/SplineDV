@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Spline-DV"
-author: "Shreyan Gupta, James J Cai"
+author: "Shreyan Gupta, Selim Romero, James J Cai"
 abstract: "This tutorial shows how to use **Spline-DV** for Differential Variability
   Analysis across two single-cell RNA seq samples and **Spline-HVG** for highly variable
   feature selection"
