@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Introduction to Spline-DV</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+section.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Introduction to Spline-DV</h1></div>
+<div class="author"><h2>Shreyan Gupta, James J Cai</h2></div>
+<div class="date"><h3></h3></div>
+</div>
+<div class="body">
+<h1 id="why-to-use-splinedv">Why to use SplineDV?</h1>
+<h2 id="beyond-averages">Beyond Averages</h2>
+<p>One of the most intuitive ways to evaluate a gene expression change is using Differential Expression (DE) analysis. Traditionally, DE analysis focuses on identifying genes that are up- or down-regulated (increased or decreased expression) between conditions, typically employing a basic mean-difference approach. We propose a paradigm shift that acknowledges the central role of gene expression variability in cellular function and challenges the current dominance of mean-based DE analysis in single-cell studies. We suggest that scRNA-seq data analysis should embrace the role of inherent gene expression variability in defining cellular function and move beyond mean-based approaches.</p>
+<h1 id="overview-of-the-splinedv-workflow">Overview of the SplineDV workflow</h1>
+<h2 id="input-two-expression-matrix">Input - Two expression matrix</h2>
+<p>The expression matrix should be formatted with the genes/features as rows and cells as columns.  Ideally, the matrix will be stored in sparse format to save memory.</p>
+<p>The two input matrices must be stored in two separate expression matrices or Seurat objects.</p>
+<pre><code class="language-r"># i.e. Reading a Seurat RDS file
+exprMatrix &lt;- readRDS('mySingleCellExperiment.rds')
+
+# or .h5 file experiment
+exprMatrix &lt;- Seurat::Read10X_h5('mySingleCellExperiment.h5')
+</code></pre>
+<p>Loading two separate expression matrices</p>
+<pre><code class="language-r"># i.e. Reading a Seurat RDS file
+exprMatrix_1 &lt;- readRDS('mySingleCellExperiment_1.rds')
+exprMatrix_2 &lt;- readRDS('mySingleCellExperiment_2.rds')
+
+# or .h5 file experiment
+exprMatrix_1 &lt;- Seurat::Read10X_h5('mySingleCellExperiment_1.h5')
+exprMatrix_2 &lt;- Seurat::Read10X_h5('mySingleCellExperiment_2.h5')
+</code></pre>
+<h2 id="loading-scrnaseq-count-example-data">Loading scRNAseq count example data</h2>
+<p>The example data is borrowed from an experimental <em>Nkx2-1</em> Gene knockout scRNA-seq study by Liebler <em>et al.</em> <sup>1</sup></p>
+<pre><code class="language-r"># Load Data
+exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+</code></pre>
+<h2 id="running-spline-dv">Running Spline-DV</h2>
+<p>For the analysis, the test data (X) is always use in contrast with the control data (Y).</p>
+<pre><code class="language-r">library(SplineDV)
+DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+</code></pre>
+<pre><code>##    genes        mu1       mu2      CV1      CV2     drop1     drop2     dist1
+## 1   Ager 0.16044058 0.9556459 2.216996 1.774189 0.9209979 0.6375321 0.1178799
+## 2    Mgp 1.05771041 1.2199219 2.025285 1.773167 0.8627859 0.7840617 1.0170386
+## 3 S100a6 0.86146941 0.5983844 1.320465 1.878510 0.4719335 0.7634961 0.5237322
+## 4 Sftpa1 0.04157808 0.5312101 1.911414 1.687157 0.9646570 0.6503856 0.0000000
+## 5  Sftpc 0.81457294 2.7561787 1.617910 1.417244 0.4116424 0.0000000 0.7863505
+## 6 Hspa1a 0.38376462 1.2905855 1.583461 1.143814 0.8648649 0.6401028 0.2896317
+##       dist2 Spline_Dist Direction         Pval
+## 1 0.9236846    1.865361        -1 1.121028e-77
+## 2 1.1047567    1.838660        -1 6.729178e-73
+## 3 0.5876942    1.665917        -1 1.016197e-45
+## 4 0.5226164    1.527323        -1 1.388362e-28
+## 5 0.0000000    1.499756         1 1.137645e-25
+## 6 0.5566712    1.482690        -1 5.992020e-24
+</code></pre>
+<h2 id="visualize-gene-expression-distributions">Visualize Gene Expression distributions</h2>
+<pre><code class="language-r">library(MASS)
+library(scales)
+library(ggplot2)
+library(ggpubr)
+
+getdensity &lt;- function(data, gene, col = 'firebrick3',
+                       ident = NULL, plot.mu = F){
+
+  dat = log(as.numeric(data[gene,])+1) # Log1p transforming
+  dat.line = density(dat)
+
+  df = data.frame(x = dat.line$x, y = dat.line$y, Genotype = ident)
+  p1 = ggplot(df, aes(x = x, y = y))+ theme_classic() +
+    geom_area(aes(x = x, y = y), color = col,
+              fill = alpha(col,0.3), linewidth = 1) +
+    labs(x = 'Expression',y = 'Density') +
+    ggtitle(paste0(ident,' ',gene, ' Density'))
+  if (is.null(legend) == F){
+    p1 = p1
+    p1
+  }
+  if (plot.mu == T){
+    p1 = p1 + geom_vline(xintercept = log(mean(dat)+1),
+                         col = col, lty = 'dashed', linewidth = 1)
+  }
+  return(p1)
+}
+
+gene = 'Ager'
+p1 = getdensity(exprMatrix_KO, gene = gene, ident = 'KO')
+p2 = getdensity(exprMatrix_WT, gene = gene, col = 'steelblue', ident = 'WT')
+ggarrange(p1,p2,ncol = 1, align = 'hv')
+</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAMAAACR9g9NAAAA+VBMVEUAAAAAADoAAGYAOjoAOpAAZmYAZpAAZrYzMzM6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZmY6kNtGgrRNTU1NTW5NTY5NbqtNjshmAABmADpmAGZmOgBmZmZmkJBmtttmtv9uTU1uTY5ubqtuq6tuq+SOTU2OTY6ObquOjsiOq+SOyP+QOgCQOjqQOmaQkDqQtpCQ2/+rbk2rbo6r5P+2ZgC225C2/7a2/9u2///Ijk3Ijm7IyP/I2unI///NJibbkDrbtmbb25Db/7bb/9vb///kq27kq47k/8jk///wvr7/tmb/yI7/25D/5Kv//7b//8j//9v//+T///8ZDwcjAAAACXBIWXMAAAsSAAALEgHS3X78AAAS70lEQVR4nO3dD3/bNB7Hca9XSLveUZLASMuYYWwMmsJl1IxsdA3sWtjSNM38/B/MSf4TO4kty7ZkS/59P69bukvd4PZtyY6bOY6PSOa0vQKonQBPNMATDfBEAzzRAE80OfjF0ZTfHrr8xnH2puvPzB9M8r+KLeo4feFjopYqAb94yIznjpvWXo0f98RftRzlycO+zeThlycTDu3y/z/bv44/8Vs+Xug63ytYALWRNPxy5PprqmDw82Y93+Mjms3qn7JtYjniu4HFZ18H2OHCfIOJ7j/6JZj5547DpozF0asR++j1wodBzSYL//s4sJmHQz3cCkJUfhf//zPH5fMBmwyCYwE/hmd3ru/v8/EffRH7LF+A/4nmEdRgkvAP//3pmI/sLfgYPfoY7RHi+WANn7p/PXf4ETxHx5TffJLwbAwHnBFRsL/npvyw3ekF+3wOzA/jH0xix/VUn7o/2AZGjuPG8Hyan+Uf/yFNlTiqn+1Ntw7uomd5DyepEe8nx2zrg7vU/dFfwzvDw/7T38/znxIiTZWAX/Hd/MbTOS88JvP6qX187Omnns6l7ucf2NQRwQf7BO+b42st3xsSVO4ETs8P5unoCVo04QeKh84n4dF7cLwewQcncPgUkdzP/8RH9VO2q3CjbQk1nLpTtvFmUDoc2rWRGvho9q72xXgS30aKRvwsmL2rtDisusGgOuG3c0QDPNEATzTAE00OHptH5wI80QBPNMATDfBEAzzRAE80wBNNNfxV1RVBzaYY/uoK8nakHh7yVgR4oqmFvwK8LamG/wB4O1IOD3k7AjzRAE80Mend0/cSS6UCvC0JST++fFQOHiPemoSkN9+/YPAHBweS8Nwd8HYkIr17+s+LUiMe8PYkIr0ZDofPCpdKFcFD3oLEpPcVRjyGvBUBnmhKn8cD3p4ATzTAE00l/BXg7Ukt/AfA25IWeMibnwZ4DHkbAjzRAE80wBMN8EQDPNEATzTAEw3wRFMIfwV4i1IK/wHw1qQHHvLGpwMeQ96CAE80wBMN8EQDPNEATzTAE00d/BXgbUol/AfA2xPgiQZ4ogGeaIAnGuCJpgke8qanBR5D3vxEpB9fDr8qXioO8FYlIr195r+5KFwqDvBWJSb9+Otb6QscAt6qhKT3zzHVd7UC0lv5CxwC3qqEV7Y8A3xnKziql7969RXgrUrZ8/i0O+DND/BE0wUPecPTA48hb3yAJxrgiQZ4ogGeaIAnGuCJBniiAZ5ogCca4IkGeKKtSZejvsRSuV0B3q5SpDPHybOXgf8AeJvaJGX2bvFSWQHeslKkcz7il6dT8VI57cBD3uxS+/iexFK5bcFjyJueqqN6wFtWMuL5HJ890QO+g0Wkq7ETtH8tWkoQ4C1rc8QXLpUb4C0rIl2evhrxEb+HqZ5IOLgjWkI67y1H2advAN/B1qSr88mstziueHB3BXjLSh/cef3KT+e23QFvesmI//nVyaTGiAe8XaX28c7+u5NJ0VI5Ad62FB3VA962EtJZnefxgLet5OAub5rfWCovwNuWolO2GfCQN7qE1Ns5eXP/fPjl262lctqBx5A3vNQLMXb28Tdn/o3kVa8Ab1tF17k7k7uyJeBtKyFlQ/7J+dYB3v0LycudAd62kjN3Y9dzt87c3f/wdmupvABvWxvn6t3NQ/u7795uL5UX4G1rc8TPN1569Xo4HOLgrqNt7OPzTtwVwu/8VhbwpqfmXP2uO+AND/BEW5MGv6PJeeVVNXjIm1xM6vHDutU455/LVoDHkDe79curp6kPeUvlBnjrAjzRAE+0GH4U/tu5iq/AAbx1aXs6B3izAzzRAE80wBMN8ERTAp/xyznAG54i+F13wJsd4ImmEx7yBqcPHkPe6ABPNMATDfBEAzzRAE80FfCZJ+4Ab3Zq4LPcAW90gCca4IkGeKIBnmha4SFvbhrhMeRNDvBEAzzRAE80MenNmcxSgLcwIenroQx8zql6wBudiPT+j2DEF13ZMs8d8CanYKoXwEPe2HTCY8gbHOCJBniiKXgeD3gbAzzRAE80wBOtPnzuiTvAm5wK+Dx3wBsc4ImmFR7y5qbi4A7wFoYRT7Ta8CJ3wJsb4IkGeKIBnmh64SFvbAqO6gFvYxjxRKsLL3YHvLEBnmia4SFvaoAnGuCJVhNe8PIbwBtdbXixu7T8VZDcOiMFGQJ/FSe52qhuZsDHewzIN1Y9+MJdvBx88jCAb6q68EXuMpbpzQfyDWUA/Oa0AflmqgUvMdMXS24/COQbqSZ8sXuR5O7GA/kmqgMvNeALILMeA/INVA9exl0Imb3tQF5/NeAlB7wA8irvIfB8XnvV4eXdcxyvct2DrwC91kTwH18OvxIsJcseOaYl4xO0hV9SNoU/mfza/u+L10TyS0Xwt8/812f5S5WAz3as8CWoVBXh/77g9oVXtpRObo1U/Sda+Xk2898XrYnkigrh34TwBUshK5MY8QVLISursY9HNlfjqB7ZnJI3FUb2BXiiAZ5okvDyHZRYFo/ZxoOWgS/RgeoHJP6Yeh4U8MY/pjXwyI4ATzTAEw3wRFMLn5zkVVn8lkjqun8+/PKt4sfU8737d0/fa3hU1fDJr3UUtn6jU3WxTenmmeLHZN/7mwvFj8k3p0c2wCe/yFVX9EanqrtV/6Aff1U9i7BN9PsXNsC/0QCvY6pnm5P6n+f9c/VT/d3Tf6yA1zHitcDf/6B+cPoavveb4XCo/gfKs2AfrwH+7jsNk/KZjo1ex9QURPOo/rWGgcS+dx3HYXbAI2sCPNEATzTAEw3wRCMHP3cc58GkeLnF8bX+lWkxevC9ttfAjIjCe/vXq3F/8dnXTs9nt3tTNhH0/NXYcfrRLRvxs+Dj5yOni9sKPXg21e9f+17fY+QPJ6uxy26Did1z2UaxPJ2Gt4vjv46my5PJgt2eTttea/XRgw+H72rM9Dn3rM9v+ebg9BeHfHBHt8d/slvPZZ9dnUscE9gWVfjF4YNJGj6azRm6G94CvmOFxGyGn+9fR1M9gw//NuPU/fB2PdUDvhsFk/qTMcftRQd3/IlbcHDne+H+n9+GB3euD/gO1vXn6qIATzTS8JQDPNEATzTAEw3wRAM80QBPNMATDfBEAzzRAE80wBNNDt7jv8SeO33+138dBpfJi1+pOhe8ZHURLNrP++xRB1/RZE1y8LP9a0b+uMdfwdDfIFuNH+e/FDFYbjnKk4d9i8nBc6Dl6atTdnsy2fBaHP2WjxcuN98rWAC1kBz8csRfivK/84k/52M/5TXr+R4f0WxW/3TssgUdxhy8YNmPl+PbSnT/0S/BzD8P9hSLo1cj9jHYjcy6+Apmo5M8uGO4s/B/XCiB56h8W+BbxsxxV8ye7RYWh27w2XA5duf6/j4f/9EXsc/yBfgf/nnUaJLwczawXa7lcaEEPkaPPga7hJMJf6W676fgU/fz16mP3OizMTqm/MaThF8cvzuNd/MpeP6PThz+MkV+9MeBD4Pj/fjz66k+dX+wDYyClzGG8HwSmeUf/yE9ScKvzv97fB3dpuDDv7CBnBrxqc+vD+5S90d/De8MD/tPf+/iy1gNT/YEjvcfPihnj4OhuYb3wmMyr5/ax8eefurpXOp+/oHN+BF8sE/wviH8ose2koUPz9PMnXjvHNwZPLfzw+F76HwSHr0Hx+sRfHACh39Jcj//Ex/VT9muwl0/Kmoyhads482gdDi0ayFF8NHsXe2L8SS+hVSN+JncdSYyWhxW3WBQjfDbOaIBnmiAJxrgiYa3GCUa4IkGeKIBnmhZpPGbcyVvOwD4zpVFGr85V/JGI4DvXDmkwZtzRW8tdHBwAPjOlU0avhFK8mZigO9cmaTRm3P9XRl+UGudUANlkcZvzlV5Hz8YDOqtFdJeFmnw5lxstq96VD8AvPnpeB4/GFxC3vQATzQN8APAW5AW+EvAG58meMibHuCJph5+AHgb0gF/CXjzAzzRAE80XfCQNzwdR/WAtyCMeKIph4/cAW94gCca4ImmDR7yZgd4ogGeaIAnmobn8YC3IYx4oqmGX7sD3uwATzTAEw3wRNMHD3mjAzzRAE80wBNNMfwA8JakHP4S8FYEeKIBnmiAJ5pW+EHVtULa0wiPIW9ygCdaNulNcHm7jy+HX1wIlsoI8LaUSfp6GMDf/yhcKivA21LmZcv/CEf83bfDR+/LXcQY8LYkmupvn/l3PwmW2m0AeFsSwft+2YsYb7gD3uRE8Oz2ttxFjAFvTbnwlS5ivA0/ULKOSENqn8dvwmPIGxzgiQZ4ogGeaIAnGuCJBniiAZ5ogCeaUvgB4K1JMfwl4C0J8ETTDD+ovmZIa1rhMeTNDfBEAzzRAE80wBNNJfz2+RvAG5xa+EvA2xLgiQZ4ogGeaIAn2pp0OepLLCUsC35QdwWRnlKkM8fJs68KjyFvbJukzN4tXiovwFtUinTOR/zydCpeShDgLSq1j+9JLCUM8Bal96ge8MaWjHg+x2dP9IDvYBHpauwE7V+LlhK3+zsawJvb5ogvXEpUhjvgjS0iXZ6+GvERv1djqge8TSk8uMuGH9RZO6SthHTeW46yT9/UgMeQN7U16ep8Mustjmsd3AHentIHd16/1tM5wNtUMuJ/fnUyiUf8+iLGZS53BnibSu3jnf13J5Pgr9FFjG+f+a9LXOAQ8DYluojx3xfBJU0lL2Kcdf4G8MaWkM5Sz+ND+DcXZa5lm+kOeFNLDu6iaT5oY8T7gO9g2adsbyrs4wFvVQmplzp5U+UixoC3qtQLMWqeqwe8Vak7V58HP6i1fkhTCSkb8k/OJ0VL5ZcNjyFvaMmZu7HruXXO1QPeqjbO1bt1ztUD3qo2R/y8xkuvAG9VG/v4vIN6wHcv3Uf1gDc0ZfDZv6MBvKmtSYPf0eS88koOPtMd8IYWk3r8sG41zvnnsoDvXOuXV09TH/KWEgV4uwI80RqAH6haV6SwGH4U/tu56r+dy4PHkDczhU/nAG9TgCca4IlmBDy2jeZTBZ93xlYGfoAj/+ZTB5/jXgzPtxnIN50R8DgSaL724QeAbyP98EWm0VdCvtlahx8AvpXUPZ2rDC95KICUZsCIlzwWQEpTBC9wF4sOAN9O7cPLTQxIcebAQ77RAE+0luEHgG+p1uFlpwaktgbgRaCAb6t24QeAb6u24WX3CUhxJsFDvsHUwOe//gbwhpZFGl/mjH384iJ3qXRC93zP7e0F8M2VRRpf2PD+R9FS6SrDy04NSHVZpPGlTO++HT56L3URY8BbVxZpfPFidnP3U+5S6RTBQ765RCPe92UvYiyGz/UEfHuJ9vE3Z/6t3EWMq8HvPhcAfGPlHtWXuohxVXjpuQGpTtXzeMBblhJ48fmbPE68F22bKYIXuufCS88NSHmNwGd74s2L2kzRPh7wtoURTzQV8IXumZx4n7pWaxNefnJAygM80YyDh3wzNQOfpQn4VmsNPvdsH+AbqUX4ErMDUp4C+KIz9YA3MSXwhe67mIKtBfBN1B58iYWR+hqC38EEfMspObhTDA/5BmppxFf9pzdIVfXhpdx34cssjdTXFPyWZfFrdlJV/+5Qbu3AFz/1H4Beb7XhZU7fZMBLfU2yEdT5FlFWCuBl9Sp8EeS11Rh8Wl52lsjZbJCCWoIv6Q555dWFlx+89eAhr7j68OXpys/0kFdeC/DV3CGvtgbhY7mK7pBXWk34UqM3hKs64CGvtNrwZeFquENeYfXgyyqGJ2Crw0NeWXXhS8PVYb/ESTxl1YKvzVhNfqDu26dbHfg23C/j/YXCnwHJasC35H6Z/p2tyh8FrarDt+e+aV/u9/bYZqIKLmIsutxZi+zrsv0brvQP3YR1EV3gMP5oMPxWEj+ZEovaX0n4+JKm0UeJixjTTimI0nURLCi6iPGbC9lr2SLrkhjxOUshq6uxj0c2p+Yixsi6VL1/PLIswBMN8ESThC/ZQdkv0BbWZKcy8GU70PKoVcKa5AT4pjJnTYKw9yYa4IkGeKIBnmga4JMzvW13/3z45du2VyLq7un7tldhIw3wye922u7mzL951vZKhH18+ajz8Km3pm2/WzM2Qf/m+xedh39jEPy9IT/uu6f/GLImcd0e8fc/GLKLvxkOh4b8TKI6vY+/+84Qd9+cuSeu00f1rw0aZwTgkQ0BnmiAJxrgiQZ4opGDnzuO82BSvNzi+Fr/yrQYPfhe22tgRkThvf3r1bi/+Oxrp+ez270pmwh6/mrsOP3olo34WfDx85HTxW2FHjyb6vevfa/vMfKHk9XYZbfBxO65bKNYnk7D28XxX0fT5clkwW5Pp22vtfrowYfDdzVm+px71ue3fHNw+otDPrij2+M/2a3nss+uziWOCWyLKvzi8MEkDR/N5gzdDW8B37FCYjbDz/evo6mewYd/m3Hqfni7nuoB342CSf3JmOP2ooM7/sQtOLjzvXD/z2/DgzvXB3wH6/pzdVGAJxppeMoBnmiAJxrgiQZ4ov0fZWhUBWkcWjMAAAAASUVORK5CYII=" alt="plot of chunk unnamed-chunk-1" /></p>
+<h1 id="highly-variable-genes-hvgs-using-spline-hvg">Highly Variable Genes (HVGs) using Spline-HVG</h1>
+<h2 id="input-scrna-seq-expression-matrix">Input - scRNA-seq Expression matrix</h2>
+<pre><code class="language-r"># Loading Data
+exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+</code></pre>
+<h2 id="running-spline-hvg">Running Spline-HVG</h2>
+<pre><code class="language-r">HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+</code></pre>
+<pre><code class="language-r">head(HVG_res)
+</code></pre>
+<pre><code>##            Means       CV   Dropout  logMean    logCV  Distance nearidx
+## Mgp    2.3868189 4.888139 0.7840617 1.219891 1.772940 1.1047623     673
+## Eln    8.7998685 3.787318 0.3161954 2.282369 1.565970 1.0978128      35
+## Ager   1.5867002 4.875557 0.6375321 0.950383 1.770801 0.9179512     677
+## Cxcl12 2.8334628 2.747736 0.6760925 1.343769 1.321152 0.7277992     173
+## Fbln5  1.7473018 3.025110 0.7712082 1.010619 1.392552 0.7080768     669
+## S100a6 0.8121863 5.490920 0.7634961 0.594534 1.870404 0.5808946    2744
+##            dvecx      dvecy       dvecz   splinex   spliney   splinez  HVG
+## Mgp    0.8097756 0.74353476  0.10917530 0.2614388 1.1744305 0.7822345 TRUE
+## Eln    0.1638886 1.05035159  0.27403475 1.0474673 0.7636604 0.3126776 TRUE
+## Ager   0.5422009 0.73968877 -0.03889732 0.4414095 0.9795817 0.6348131 TRUE
+## Cxcl12 0.2696909 0.56368173  0.37312376 0.4135195 1.0253019 0.6713488 TRUE
+## Fbln5  0.5970997 0.36725036  0.09985943 0.2729108 1.1539916 0.7712836 TRUE
+## S100a6 0.5444628 0.06761117 -0.19086004 0.2798965 1.1395773 0.7629633 TRUE
+</code></pre>
+<pre><code class="language-r"># Extracting HVG Gene list
+HVG_list = rownames(HVG_res)[HVG_res$HVG == TRUE]
+HVG_list
+</code></pre>
+<pre><code>##   [1] &quot;Mgp&quot;           &quot;Eln&quot;           &quot;Ager&quot;          &quot;Cxcl12&quot;       
+##   [5] &quot;Fbln5&quot;         &quot;S100a6&quot;        &quot;Car4&quot;          &quot;Vwf&quot;          
+##   [9] &quot;Hmgb2&quot;         &quot;Hspa1a&quot;        &quot;Ier3&quot;          &quot;Igfbp7&quot;       
+##  [13] &quot;Ube2c&quot;         &quot;Sftpa1&quot;        &quot;Hspb1&quot;         &quot;Plac8&quot;        
+##  [17] &quot;Sftpb&quot;         &quot;Lyz2&quot;          &quot;Hist1h2bc&quot;     &quot;Emp2&quot;         
+##  [21] &quot;Fbln2&quot;         &quot;Bgn&quot;           &quot;Cenpa&quot;         &quot;2810417H13Rik&quot;
+##  [25] &quot;Cd24a&quot;         &quot;Cks2&quot;          &quot;Fos&quot;           &quot;Ctsh&quot;         
+##  [29] &quot;Esm1&quot;          &quot;Prss23&quot;        &quot;Ltbp4&quot;         &quot;H2afx&quot;        
+##  [33] &quot;H2afz&quot;         &quot;Junb&quot;          &quot;Top2a&quot;         &quot;Apln&quot;         
+##  [37] &quot;Cyp4b1&quot;        &quot;Igfbp4&quot;        &quot;Birc5&quot;         &quot;Ly6a&quot;         
+##  [41] &quot;Pmp22&quot;         &quot;Phlda1&quot;        &quot;Sat1&quot;          &quot;Stmn2&quot;        
+##  [45] &quot;Tuba1b&quot;        &quot;Zfp36&quot;         &quot;H19&quot;           &quot;Cpe&quot;          
+##  [49] &quot;Prkcdbp&quot;       &quot;Rgcc&quot;          &quot;Socs3&quot;         &quot;Ednrb&quot;        
+##  [53] &quot;Tm4sf1&quot;        &quot;2700094K13Rik&quot; &quot;Hey1&quot;          &quot;Rrm2&quot;         
+##  [57] &quot;Egr1&quot;          &quot;Gja4&quot;          &quot;Cyr61&quot;         &quot;Timp3&quot;        
+##  [61] &quot;Fabp5&quot;         &quot;Edn1&quot;          &quot;Apold1&quot;        &quot;Cenpf&quot;        
+##  [65] &quot;Gm26917&quot;       &quot;Stmn1&quot;         &quot;Hes1&quot;          &quot;Tppp3&quot;        
+##  [69] &quot;Cdkn1a&quot;        &quot;Nedd4&quot;         &quot;Sept4&quot;         &quot;Sparcl1&quot;      
+##  [73] &quot;Ppp1r15a&quot;      &quot;Cdk1&quot;          &quot;Vegfc&quot;         &quot;Rtn1&quot;         
+##  [77] &quot;Hist1h1c&quot;      &quot;Ccnb2&quot;         &quot;Eif4g2&quot;        &quot;H1f0&quot;         
+##  [81] &quot;Crip1&quot;         &quot;Hmgn2&quot;         &quot;Rgs2&quot;          &quot;Ssb&quot;          
+##  [85] &quot;Tbx2&quot;          &quot;Fermt2&quot;        &quot;Ube2s&quot;         &quot;Ly6c1&quot;        
+##  [89] &quot;Npc2&quot;          &quot;Hist1h2ap&quot;     &quot;Itgb1&quot;         &quot;Scgb1a1&quot;      
+##  [93] &quot;Slc6a6&quot;        &quot;Col5a2&quot;        &quot;Kif5b&quot;         &quot;Fosb&quot;         
+##  [97] &quot;Btg2&quot;          &quot;Fstl1&quot;         &quot;Tmem158&quot;       &quot;Wif1&quot;
+</code></pre>
+<h1 id="appendix">Appendix</h1>
+<h2 id="references">References</h2>
+<ol>
+<li>Liebler JM, Marconett CN, Juul N, et al. Combinations of differentiation markers distinguish subpopulations of alveolar epithelial cells in adult lung. Am J Physiol Lung Cell Mol Physiol. 2016;310(2):L114-L120. doi:10.1152/ajplung.00337.2015</li>
+</ol>
+<h1 id="sessioninfo">sessionInfo</h1>
+<p>This is the output of <code>sessionInfo()</code> on the system on which this document was compiled:</p>
+<pre><code class="language-r">date()
+</code></pre>
+<pre><code>## [1] &quot;Thu Jul 11 14:49:27 2024&quot;
+</code></pre>
+<pre><code class="language-r">sessionInfo()
+</code></pre>
+<pre><code>## R Under development (unstable) (2024-06-03 r86679 ucrt)
+## Platform: x86_64-w64-mingw32/x64
+## Running under: Windows 11 x64 (build 22631)
+## 
+## Matrix products: default
+## 
+## 
+## locale:
+## [1] LC_COLLATE=English_United States.utf8 
+## [2] LC_CTYPE=English_United States.utf8   
+## [3] LC_MONETARY=English_United States.utf8
+## [4] LC_NUMERIC=C                          
+## [5] LC_TIME=English_United States.utf8    
+## 
+## time zone: America/Chicago
+## tzcode source: internal
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] ggpubr_0.6.0   ggplot2_3.5.1  scales_1.3.0   MASS_7.3-60.2  SplineDV_0.1.0
+## 
+## loaded via a namespace (and not attached):
+##   [1] RColorBrewer_1.1-3       rstudioapi_0.16.0        jsonlite_1.8.8          
+##   [4] magrittr_2.0.3           spatstat.utils_3.0-5     farver_2.1.2            
+##   [7] vctrs_0.6.5              ROCR_1.0-11              spatstat.explore_3.2-7  
+##  [10] rstatix_0.7.2            htmltools_0.5.8.1        broom_1.0.6             
+##  [13] sctransform_0.4.1        parallelly_1.37.1        KernSmooth_2.23-24      
+##  [16] htmlwidgets_1.6.4        ica_1.0-3                plyr_1.8.9              
+##  [19] plotly_4.10.4            zoo_1.8-12               igraph_2.0.3            
+##  [22] mime_0.12                lifecycle_1.0.4          pkgconfig_2.0.3         
+##  [25] Matrix_1.7-0             R6_2.5.1                 fastmap_1.2.0           
+##  [28] MatrixGenerics_1.17.0    fitdistrplus_1.1-11      future_1.33.2           
+##  [31] shiny_1.8.1.1            digest_0.6.35            colorspace_2.1-0        
+##  [34] patchwork_1.2.0          Seurat_5.1.0             tensor_1.5              
+##  [37] RSpectra_0.16-1          irlba_2.3.5.1            labeling_0.4.3          
+##  [40] progressr_0.14.0         fansi_1.0.6              spatstat.sparse_3.0-3   
+##  [43] httr_1.4.7               polyclip_1.10-6          abind_1.4-5             
+##  [46] compiler_4.5.0           withr_3.0.0              backports_1.5.0         
+##  [49] carData_3.0-5            fastDummies_1.7.3        highr_0.11              
+##  [52] ggsignif_0.6.4           tools_4.5.0              lmtest_0.9-40           
+##  [55] httpuv_1.6.15            future.apply_1.11.2      goftest_1.2-3           
+##  [58] glue_1.7.0               nlme_3.1-164             promises_1.3.0          
+##  [61] grid_4.5.0               Rtsne_0.17               cluster_2.1.6           
+##  [64] reshape2_1.4.4           generics_0.1.3           gtable_0.3.5            
+##  [67] spatstat.data_3.1-2      tidyr_1.3.1              data.table_1.15.4       
+##  [70] sp_2.1-4                 car_3.1-2                utf8_1.2.4              
+##  [73] BiocGenerics_0.51.0      spatstat.geom_3.2-9      RcppAnnoy_0.0.22        
+##  [76] ggrepel_0.9.5            RANN_2.6.1               pillar_1.9.0            
+##  [79] stringr_1.5.1            spam_2.10-0              RcppHNSW_0.6.0          
+##  [82] later_1.3.2              splines_4.5.0            dplyr_1.1.4             
+##  [85] lattice_0.22-6           survival_3.7-0           deldir_2.0-4            
+##  [88] tidyselect_1.2.1         miniUI_0.1.1.1           pbapply_1.7-2           
+##  [91] knitr_1.48               gridExtra_2.3            scattermore_1.2         
+##  [94] xfun_0.45                Biobase_2.65.0           matrixStats_1.3.0       
+##  [97] stringi_1.8.4            lazyeval_0.2.2           evaluate_0.24.0         
+## [100] codetools_0.2-20         tibble_3.2.1             cli_3.6.2               
+## [103] uwot_0.2.2               xtable_1.8-4             reticulate_1.37.0       
+## [106] munsell_0.5.1            Rcpp_1.0.12              globals_0.16.3          
+## [109] spatstat.random_3.2-3    png_0.1-8                parallel_4.5.0          
+## [112] dotCall64_1.1-1          sparseMatrixStats_1.17.2 listenv_0.9.1           
+## [115] viridisLite_0.4.2        ggridges_0.5.6           SeuratObject_5.0.2      
+## [118] leiden_0.4.3.1           purrr_1.0.2              rlang_1.1.4             
+## [121] cowplot_1.1.3
+</code></pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>
