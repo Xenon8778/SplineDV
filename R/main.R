@@ -22,14 +22,19 @@
 #' @param nHVGs An integer value. Number of top Highly Variable Genes (HVGs) to select.
 #' @param show.spline A Boolean value (TRUE/FALSE), if TRUE, shows the 3D Spline as Plotly figure.
 #' @param use.ndist A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.
+#' @examples
+#' # example code
+#' ## Load Data
+#' exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+#' HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
 
-HVG_splinefit <- function(X = x, QC = T,
+HVG_splinefit <- function(X = x, QC = TRUE,
                           nfeatures = 500, ncells = 15, mt.perc = 15,
                           degf = 15, spar = 0.75, nHVGs = 2000, show.spline = FALSE,
-                          use.ndist = T){
+                          use.ndist = TRUE){
 
   # Check if object is SeuratObject
-  if (class(X) == "Seurat"){
+  if (is(X,"Seurat")){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))
@@ -42,7 +47,7 @@ HVG_splinefit <- function(X = x, QC = T,
   }
 
   # QC Filtering
-  if (QC == T){
+  if (QC == TRUE){
     adata = HVG_QC(adata, nfeatures = nfeatures, ncells = ncells,
                    mt.perc = mt.perc)
     print('QC Done')
@@ -50,8 +55,8 @@ HVG_splinefit <- function(X = x, QC = T,
 
   # Normalizing
   adata = NormalizeData(adata, normalization.method = 'RC',
-                        scale.factor = mean(adata$nCount_RNA, na.rm = T),
-                        verbose = F)
+                        scale.factor = mean(adata$nCount_RNA, na.rm = TRUE),
+                        verbose = FALSE)
 
   ## Highly Variable Genes
   Dropout = rowSums(GetAssayData(adata, layer = 'counts') == 0)
@@ -87,7 +92,7 @@ HVG_splinefit <- function(X = x, QC = T,
   colnames(xyz1) = c('logMean','logCV','Dropout')
   rownames(xyz1) = rownames(splinefit_df)
   euclidean <- function(a, b) sqrt(sum((a - b)^2))
-  if (use.ndist == F){
+  if (use.ndist == FALSE){
     Dist_HVG = c()
     pb = txtProgressBar(min = 0, max = nrow(xyz), initial = 0, style = 3)
     for (i in 1:nrow(xyz)){
@@ -158,14 +163,20 @@ HVG_splinefit <- function(X = x, QC = T,
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import Seurat
 #' @return QC filtered SeuratObject
+#' @param X Count matrix or SeuratObject
 #' @param nfeatures An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mt.perc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
+#' @examples
+#' # example code
+#' ## Load Data
+#' exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+#' adata = HVG_QC(exprMatrix)
 
 HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 
   # Check if object is SeuratObject
-  if (class(X) == "Seurat"){
+  if (is(X,"Seurat")){
     adata = X
   } else {
     adata = CreateSeuratObject(CreateAssayObject(X))
@@ -198,6 +209,12 @@ HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 #' @param nfeatures An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mt.perc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
+#' @examples
+#' # example code
+#' # Load Data
+#' exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+#' exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
+#' DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
 
 DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
                          mt.perc = 15) {
@@ -215,9 +232,9 @@ DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
 
   # Computing distances
   print('Computing distances for Data 1')
-  res_X = HVG_splinefit(X, QC = F)
+  res_X = HVG_splinefit(X, QC = FALSE)
   print('Computing distances for Data 2')
-  res_Y = HVG_splinefit(Y, QC = F)
+  res_Y = HVG_splinefit(Y, QC = FALSE)
 
   # Intersect gene space of the two data sets
   feat = intersect(rownames(res_X),rownames(res_Y))
@@ -254,7 +271,7 @@ DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
     mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
     mutate(Direction = dist_diff/abs(dist_diff)) %>%
     mutate(Z= as.numeric(scale(Vector_Dist))) %>%
-    mutate(Pval = 2*pnorm(abs(Z),lower.tail = F)) %>%
+    mutate(Pval = 2*pnorm(abs(Z),lower.tail = FALSE)) %>%
     arrange(Pval)
 
   res_out = DV_res %>% select(genes,mu1,mu2,CV1,CV2,drop1,drop2,dist1,dist2,

@@ -23,6 +23,13 @@ A DataFrame with DV Statistics
 \description{
 Differential Variability analysis
 }
+\examples{
+# example code
+# Load Data
+exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
+DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+}
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>
 }

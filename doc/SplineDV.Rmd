@@ -1,6 +1,6 @@
 ---
 title: "Introduction to Spline-DV"
-author: "Shreyan Gupta, James J Cai"
+author: "Shreyan Gupta, Selim Romero, James J Cai"
 abstract: "This tutorial shows how to use **Spline-DV** for Differential Variability
   Analysis across two single-cell RNA seq samples and **Spline-HVG** for highly variable
   feature selection"
@@ -15,13 +15,20 @@ output:
     
 vignette: >
   %\VignetteIndexEntry{Introduction to Spline-DV}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 # Why to use SplineDV? 
 ## Beyond Averages
 One of the most intuitive ways to evaluate a gene expression change is using Differential Expression (DE) analysis. Traditionally, DE analysis focuses on identifying genes that are up- or down-regulated (increased or decreased expression) between conditions, typically employing a basic mean-difference approach. We propose a paradigm shift that acknowledges the central role of gene expression variability in cellular function and challenges the current dominance of mean-based DE analysis in single-cell studies. We suggest that scRNA-seq data analysis should embrace the role of inherent gene expression variability in defining cellular function and move beyond mean-based approaches. 
+
+# Installation
+```{r Installation, eval=FALSE}
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("Xenon8778/SplineDV")
+```
+
 
 # Overview of the SplineDV workflow 
 ## Input - Two expression matrix 
@@ -53,8 +60,8 @@ The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-s
 
 ```{r loadingExampledata}
 # Load Data
-exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
 ```
 
 ## Running Spline-DV
@@ -62,6 +69,7 @@ For the analysis, the test data (X) is always use in contrast with the control d
 ```{r runSplineDV, results='hide'}
 library(SplineDV)
 DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+head(DV_res)
 ```
 
 ```{r showResults, echo=FALSE}
@@ -92,7 +100,7 @@ getdensity <- function(data, gene, col = 'firebrick3',
     p1 = p1
     p1
   }
-  if (plot.mu == T){
+  if (plot.mu == TRUE){
     p1 = p1 + geom_vline(xintercept = log(mean(dat)+1),
                          col = col, lty = 'dashed', linewidth = 1)
   }
@@ -110,14 +118,15 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 ## Input - scRNA-seq Expression matrix 
 ```{r}
 # Loading Data
-exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
 ```
 ## Running Spline-HVG
-```{r runSplineHVG, results='hide', fig.show='animate'}
+```{r runSplineHVG, results='hide'}
 HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+head(HVG_res)
 ```
 
-```{r showHVGResults}
+```{r showHVGResults, echo=FALSE}
 head(HVG_res)
 ```
 

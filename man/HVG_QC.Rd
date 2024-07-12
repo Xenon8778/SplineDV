@@ -7,6 +7,8 @@
 HVG_QC(X = x, nfeatures = 500, ncells = 15, mt.perc = 15)
 }
 \arguments{
+\item{X}{Count matrix or SeuratObject}
+
 \item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
@@ -18,6 +20,12 @@ QC filtered SeuratObject
 }
 \description{
 QC filter scRNA-seq expression data
+}
+\examples{
+# example code
+## Load Data
+exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+adata = HVG_QC(exprMatrix)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

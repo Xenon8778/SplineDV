@@ -6,7 +6,7 @@
 \usage{
 HVG_splinefit(
   X = x,
-  QC = T,
+  QC = TRUE,
   nfeatures = 500,
   ncells = 15,
   mt.perc = 15,
@@ -14,7 +14,7 @@ HVG_splinefit(
   spar = 0.75,
   nHVGs = 2000,
   show.spline = FALSE,
-  use.ndist = T
+  use.ndist = TRUE
 )
 }
 \arguments{
@@ -43,6 +43,12 @@ A DataFrame with HVG selection Statistics
 }
 \description{
 Compute Highly Variable Genes from an scRNAseq expression data.
+}
+\examples{
+# example code
+## Load Data
+exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

@@ -24,7 +24,7 @@ vignette: >
 One of the most intuitive ways to evaluate a gene expression change is using Differential Expression (DE) analysis. Traditionally, DE analysis focuses on identifying genes that are up- or down-regulated (increased or decreased expression) between conditions, typically employing a basic mean-difference approach. We propose a paradigm shift that acknowledges the central role of gene expression variability in cellular function and challenges the current dominance of mean-based DE analysis in single-cell studies. We suggest that scRNA-seq data analysis should embrace the role of inherent gene expression variability in defining cellular function and move beyond mean-based approaches. 
 
 # Installation
-```{r Installation}
+```{r Installation, eval=FALSE}
 if (!require("devtools")) install.packages("devtools")
 devtools::install_github("Xenon8778/SplineDV")
 ```
@@ -60,8 +60,8 @@ The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-s
 
 ```{r loadingExampledata}
 # Load Data
-exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
 ```
 
 ## Running Spline-DV
@@ -85,7 +85,7 @@ library(ggplot2)
 library(ggpubr)
 
 getdensity <- function(data, gene, col = 'firebrick3',
-                       ident = NULL, plot.mu = F){
+                       ident = NULL, plot.mu = FALSE){
 
   dat = log(as.numeric(data[gene,])+1) # Log1p transforming
   dat.line = density(dat)
@@ -96,11 +96,11 @@ getdensity <- function(data, gene, col = 'firebrick3',
               fill = alpha(col,0.3), linewidth = 1) +
     labs(x = 'Expression',y = 'Density') +
     ggtitle(paste0(ident,' ',gene, ' Density'))
-  if (is.null(legend) == F){
+  if (is.null(legend) == FALSE){
     p1 = p1
     p1
   }
-  if (plot.mu == T){
+  if (plot.mu == TRUE){
     p1 = p1 + geom_vline(xintercept = log(mean(dat)+1),
                          col = col, lty = 'dashed', linewidth = 1)
   }
@@ -118,7 +118,7 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 ## Input - scRNA-seq Expression matrix 
 ```{r}
 # Loading Data
-exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
 ```
 ## Running Spline-HVG
 ```{r runSplineHVG, results='hide'}

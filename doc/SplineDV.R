@@ -1,3 +1,7 @@
+## ----Installation, eval=FALSE-------------------------------------------------
+#  if (!require("devtools")) install.packages("devtools")
+#  devtools::install_github("Xenon8778/SplineDV")
+
 ## ----loadingSingleExprMat, eval=FALSE-----------------------------------------
 #  # i.e. Reading a Seurat RDS file
 #  exprMatrix <- readRDS('mySingleCellExperiment.rds')
@@ -16,12 +20,13 @@
 
 ## ----loadingExampledata-------------------------------------------------------
 # Load Data
-exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
 
 ## ----runSplineDV, results='hide'----------------------------------------------
 library(SplineDV)
 DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+head(DV_res)
 
 ## ----showResults, echo=FALSE--------------------------------------------------
 head(DV_res)
@@ -48,7 +53,7 @@ getdensity <- function(data, gene, col = 'firebrick3',
     p1 = p1
     p1
   }
-  if (plot.mu == T){
+  if (plot.mu == TRUE){
     p1 = p1 + geom_vline(xintercept = log(mean(dat)+1),
                          col = col, lty = 'dashed', linewidth = 1)
   }
@@ -62,12 +67,13 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 
 ## -----------------------------------------------------------------------------
 # Loading Data
-exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
 
-## ----runSplineHVG, results='hide', fig.show='animate'-------------------------
+## ----runSplineHVG, results='hide'---------------------------------------------
 HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+head(HVG_res)
 
-## ----showHVGResults-----------------------------------------------------------
+## ----showHVGResults, echo=FALSE-----------------------------------------------
 head(HVG_res)
 
 ## ----showHVGList--------------------------------------------------------------
