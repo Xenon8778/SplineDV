@@ -25,7 +25,7 @@ exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KO
 
 ## ----runSplineDV, results='hide'----------------------------------------------
 library(SplineDV)
-DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT, ncells = 3, nfeatures = 200)
 head(DV_res)
 
 ## ----showResults, echo=FALSE--------------------------------------------------
@@ -70,7 +70,7 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
 
 ## ----runSplineHVG, results='hide'---------------------------------------------
-HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100, ncells = 3, nfeatures = 200)
 head(HVG_res)
 
 ## ----showHVGResults, echo=FALSE-----------------------------------------------

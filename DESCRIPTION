@@ -14,6 +14,7 @@ BugReports: https://github.com/Xenon8778/SplineDV/issues
 URL: https://github.com/Xenon8778/SplineDV
 License: GPL (>=2)
 Encoding: UTF-8
+LazyData: false
 biocViews: Sequencing, SingleCell, Software, SystemsBiology,
         DifferentialExpression, RNASeq, FunctionalGenomics,
         GeneExpression, Transcription, Transcriptomics,
@@ -24,7 +25,7 @@ Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2024-07-12 16:34:20 UTC; xenon8778
+Packaged: 2024-07-12 16:58:19 UTC; xenon8778
 Author: Shreyan Gupta [aut, cre] (<https://orcid.org/0000-0002-1904-9862>),
   James Cai [aut] (<https://orcid.org/0000-0002-8081-6725>),
   Selim Romero [aut] (<https://orcid.org/0000-0002-2401-6272>)
