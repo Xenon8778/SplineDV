@@ -3,8 +3,9 @@
 #' @export HVG_splinefit
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import dplyr
-#' @import Seurat
 #' @import plotly
+#' @import SingleCellExperiment
+#' @import SummarizedExperiment
 #' @importFrom sparseMatrixStats rowSds
 #' @importFrom Matrix rowSums rowMeans
 #' @importFrom utils setTxtProgressBar txtProgressBar
@@ -12,9 +13,9 @@
 #' @importFrom stats smooth.spline
 #' @importFrom methods as is
 #' @return A DataFrame with HVG selection Statistics
-#' @param X Count matrix or SeuratObject
+#' @param X Count matrix or SingleCellExperiment
 #' @param QC A Boolean value (TRUE/FALSE), if TRUE, a quality control is applied over the data.
-#' @param nfeatures An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.
+#' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mt.perc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @param degf An integer value. Degrees of freedom for the Spline.
@@ -29,15 +30,15 @@
 #' HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
 
 HVG_splinefit <- function(X = x, QC = TRUE,
-                          nfeatures = 500, ncells = 15, mt.perc = 15,
+                          ncounts = 500, ncells = 15, mt.perc = 15,
                           degf = 15, spar = 0.75, nHVGs = 2000, show.spline = FALSE,
                           use.ndist = TRUE){
 
-  # Check if object is SeuratObject
-  if (is(X,"Seurat")){
+  # Check if object is SingleCellExperiment
+  if (is(X,"SingleCellExperiment")){
     adata = X
   } else {
-    adata = CreateSeuratObject(CreateAssayObject(X))
+    adata = SingleCellExperiment(list(counts=X))
   }
 
   # Checking if object has enough cells
@@ -48,21 +49,25 @@ HVG_splinefit <- function(X = x, QC = TRUE,
 
   # QC Filtering
   if (QC == TRUE){
-    adata = HVG_QC(adata, nfeatures = nfeatures, ncells = ncells,
+    adata = HVG_QC(adata, ncounts = ncounts, ncells = ncells,
                    mt.perc = mt.perc)
     print('QC Done')
   }
 
+  # Checking if object has enough genes
+  if(nrow(X) < 50){
+    print('Sample has too few genes')
+    stop()
+  }
+
   # Normalizing
-  adata = NormalizeData(adata, normalization.method = 'RC',
-                        scale.factor = mean(adata$nCount_RNA, na.rm = TRUE),
-                        verbose = FALSE)
+  SummarizedExperiment::assay(adata, 'data') = t(t(SummarizedExperiment::assay(adata,'counts'))/colSums(SummarizedExperiment::assay(adata,'counts')))*mean(colSums(SummarizedExperiment::assay(adata,'counts')), na.rm = TRUE)
 
   ## Highly Variable Genes
-  Dropout = rowSums(GetAssayData(adata, layer = 'counts') == 0)
+  Dropout = rowSums(SummarizedExperiment::assay(adata, 'counts') == 0)
   Dropout = Dropout/ncol(adata)
-  Means = rowMeans(GetAssayData(adata, layer = 'data'))
-  SDs = rowSds(GetAssayData(adata, layer = 'data'))
+  Means = rowMeans(SummarizedExperiment::assay(adata, 'data'))
+  SDs = rowSds(SummarizedExperiment::assay(adata, 'data'))
   CV = SDs/Means
   splinefit_df = as.data.frame(Means)
   splinefit_df$CV = CV
@@ -161,10 +166,12 @@ HVG_splinefit <- function(X = x, QC = TRUE,
 #' @importFrom Matrix rowSums
 #' @description QC filter scRNA-seq expression data
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
-#' @import Seurat
-#' @return QC filtered SeuratObject
-#' @param X Count matrix or SeuratObject
-#' @param nfeatures An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.
+#' @import scuttle
+#' @import SummarizedExperiment
+#' @import SingleCellExperiment
+#' @return QC filtered SingleCellExperiment
+#' @param X Count matrix or SingleCellExperiment
+#' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mt.perc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @examples
@@ -173,26 +180,33 @@ HVG_splinefit <- function(X = x, QC = TRUE,
 #' exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
 #' adata = HVG_QC(exprMatrix)
 
-HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
+HVG_QC <- function(X = x, ncounts = 1000, ncells = 15, mt.perc = 15){
 
-  # Check if object is SeuratObject
-  if (is(X,"Seurat")){
-    adata = X
+  # Check if object is SingleCellExperiment
+  if (is(X,"SingleCellExperiment")){
+    sce = X
   } else {
-    adata = CreateSeuratObject(CreateAssayObject(X))
+    sce = SingleCellExperiment(list(counts=X))
   }
 
   ## Calculating mitochondrial expression
-  if(dim(table(startsWith(rownames(adata),'mt-'))) == 2){
-    adata[["percent.mt"]] <- PercentageFeatureSet(adata, pattern = "^mt-")
+  if(dim(table(startsWith(rownames(sce),'mt-'))) == 2){
+    is.mito <- any(rownames(sce)=="mt")
+    qc_df <- perCellQCMetrics(sce, subsets=list(Mito=is.mito))
   }else {
-    adata[["percent.mt"]] <- PercentageFeatureSet(adata, pattern = "^MT-")
+    is.mito <- any(rownames(sce)=="MT")
+    qc_df <- perCellQCMetrics(sce, subsets=list(Mito=is.mito))
   }
-  adata <- subset(adata, subset = nFeature_RNA > nfeatures & percent.mt < mt.perc)
-  selected_f <- rownames(adata)[rowSums(adata) > ncells]
-  adata = subset(adata, features = selected_f)
 
-  return(adata)
+  qc.lib <- qc_df$sum < ncounts
+  qc.mito <- qc_df$subsets_Mito_percent > mt.perc
+  discard_cells <- qc.lib | qc.mito
+  sce <- sce[,!discard_cells]
+
+  discard_genes <- rowSums(SummarizedExperiment::assay(sce,'counts')) < ncells
+  sce <- sce[!discard_genes,]
+
+  return(sce)
 }
 
 
@@ -204,9 +218,9 @@ HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 #' @import dplyr
 #' @importFrom stats pnorm
 #' @return A DataFrame with DV Statistics
-#' @param X Count matrix or SeuratObject (Test sample)
-#' @param Y Count matrix or SeuratObject (Control sample)
-#' @param nfeatures An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.
+#' @param X Count matrix or SingleCellExperiment (Test sample)
+#' @param Y Count matrix or SingleCellExperiment (Control sample)
+#' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mt.perc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @examples
@@ -216,13 +230,13 @@ HVG_QC <- function(X = x, nfeatures = 500, ncells = 15, mt.perc = 15){
 #' exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
 #' DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
 
-DV_splinefit <- function(X = x, Y = y,  nfeatures = 500, ncells = 15,
+DV_splinefit <- function(X = x, Y = y,  ncounts = 500, ncells = 15,
                          mt.perc = 15) {
 
   # QC Filtering
-  X = HVG_QC(X, nfeatures = nfeatures, ncells = ncells,
+  X = HVG_QC(X, ncounts = ncounts, ncells = ncells,
              mt.perc = mt.perc)
-  Y = HVG_QC(Y, nfeatures = nfeatures, ncells = ncells,
+  Y = HVG_QC(Y, ncounts = ncounts, ncells = ncells,
              mt.perc = mt.perc)
 
   # Intersect gene space of the two data sets
