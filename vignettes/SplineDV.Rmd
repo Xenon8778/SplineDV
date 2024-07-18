@@ -68,7 +68,7 @@ exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KO
 For the analysis, the test data (X) is always use in contrast with the control data (Y).
 ```{r runSplineDV, results='hide'}
 library(SplineDV)
-DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT, ncells = 3, nfeatures = 200)
+DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT, ncells = 3, ncounts = 200)
 head(DV_res)
 ```
 
@@ -122,7 +122,7 @@ exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdat
 ```
 ## Running Spline-HVG
 ```{r runSplineHVG, results='hide'}
-HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100, ncells = 3, nfeatures = 200)
+HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100, ncells = 3, ncounts = 200)
 head(HVG_res)
 ```
 
