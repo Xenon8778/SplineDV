@@ -4,14 +4,14 @@
 \alias{DV_splinefit}
 \title{Spline-DV}
 \usage{
-DV_splinefit(X = x, Y = y, nfeatures = 500, ncells = 15, mt.perc = 15)
+DV_splinefit(X = x, Y = y, ncounts = 500, ncells = 15, mt.perc = 15)
 }
 \arguments{
-\item{X}{Count matrix or SeuratObject (Test sample)}
+\item{X}{Count matrix or SingleCellExperiment (Test sample)}
 
-\item{Y}{Count matrix or SeuratObject (Control sample)}
+\item{Y}{Count matrix or SingleCellExperiment (Control sample)}
 
-\item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
+\item{ncounts}{An integer value. Defines the minimum reads required for a cell to be included in the analysis.}
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
 

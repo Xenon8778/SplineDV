@@ -7,7 +7,7 @@
 HVG_splinefit(
   X = x,
   QC = TRUE,
-  nfeatures = 500,
+  ncounts = 500,
   ncells = 15,
   mt.perc = 15,
   degf = 15,
@@ -18,11 +18,11 @@ HVG_splinefit(
 )
 }
 \arguments{
-\item{X}{Count matrix or SeuratObject}
+\item{X}{Count matrix or SingleCellExperiment}
 
 \item{QC}{A Boolean value (TRUE/FALSE), if TRUE, a quality control is applied over the data.}
 
-\item{nfeatures}{An integer value. Defines the minimum features (genes) required for a cell to be included in the analysis.}
+\item{ncounts}{An integer value. Defines the minimum reads required for a cell to be included in the analysis.}
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
 
