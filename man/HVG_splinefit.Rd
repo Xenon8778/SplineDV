@@ -47,7 +47,7 @@ Compute Highly Variable Genes from an scRNAseq expression data.
 \examples{
 # example code
 ## Load Data
-exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+exprMatrix = data(WTdata, package = "SplineDV") # WT Sample
 HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
 }
 \author{

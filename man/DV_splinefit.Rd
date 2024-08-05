@@ -26,8 +26,8 @@ Differential Variability analysis
 \examples{
 # example code
 # Load Data
-exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
+exprMatrix_WT = data(WTdata, package = "SplineDV") # WT Sample
+exprMatrix_KO = data(WTdata, package = "SplineDV") # KO Sample
 DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
 }
 \author{
