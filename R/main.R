@@ -160,6 +160,7 @@ HVG_splinefit <- function(X = x, QC = TRUE,
     print(fig)
   }
 
+  # Trimming genes at the ends of spline
   splinefit_df <- splinefit_df %>% filter(nearidx != 1 & nearidx != max(nearidx))
   splinefit_df <- splinefit_df %>% arrange(-Distance)
 
@@ -290,9 +291,10 @@ DV_splinefit <- function(X = x, Y = y,  ncounts = 500, ncells = 15,
 
   # Computing Diff Distance
   DV_res <- df %>% as_tibble %>%
-    mutate(dist_diff = dist1 - dist2) %>%
+    mutate(dist1 = sqrt(X_dvecx^2+X_dvecy^2+X_dvecz^2)) %>%
+    mutate(dist2 = sqrt(Y_dvecx^2+Y_dvecy^2+Y_dvecz^2)) %>%
     mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2))  %>%
-    mutate(Direction = dist_diff/abs(dist_diff)) %>%
+    mutate(Direction = sign(dist1 - dist2)) %>%
     mutate(Z= as.numeric(scale(Vector_Dist))) %>%
     mutate(Pval = 2*pnorm(abs(Z),lower.tail = FALSE)) %>%
     arrange(Pval)
