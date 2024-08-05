@@ -60,15 +60,15 @@ The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-s
 
 ```{r loadingExampledata}
 # Load Data
-exprMatrix_WT = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/KOdata.csv', row.names = 1) # KO Sample
+WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+KO_count <- get(data("KO_count", package = 'SplineDV')) # KO Sample
 ```
 
 ## Running Spline-DV
-For the analysis, the test data (X) is always use in contrast with the control data (Y).
+For the analysis, the test data (X) is always use in contrast with the control data (Y). We use smaller QC parameters for the small example data sets. **We recommend using the default QC parameters for large data sets.**
 ```{r runSplineDV, results='hide'}
 library(SplineDV)
-DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT, ncells = 3, ncounts = 200)
+DV_res <- DV_splinefit(X = KO_count, Y = WT_count, ncells = 3, ncounts = 200)
 head(DV_res)
 ```
 
@@ -87,11 +87,11 @@ library(ggpubr)
 getdensity <- function(data, gene, col = 'firebrick3',
                        ident = NULL, plot.mu = FALSE){
 
-  dat = log(as.numeric(data[gene,])+1) # Log1p transforming
-  dat.line = density(dat)
+  dat <- log(as.numeric(data[gene,])+1) # Log1p transforming
+  dat.line <- density(dat)
 
-  df = data.frame(x = dat.line$x, y = dat.line$y, Genotype = ident)
-  p1 = ggplot(df, aes(x = x, y = y))+ theme_classic() +
+  df <- data.frame(x = dat.line$x, y = dat.line$y, Genotype = ident)
+  p1 <- ggplot(df, aes(x = x, y = y))+ theme_classic() +
     geom_area(aes(x = x, y = y), color = col,
               fill = alpha(col,0.3), linewidth = 1) +
     labs(x = 'Expression',y = 'Density') +
@@ -101,15 +101,15 @@ getdensity <- function(data, gene, col = 'firebrick3',
     p1
   }
   if (plot.mu == TRUE){
-    p1 = p1 + geom_vline(xintercept = log(mean(dat)+1),
+    p1 <- p1 + geom_vline(xintercept = log(mean(dat)+1),
                          col = col, lty = 'dashed', linewidth = 1)
   }
   return(p1)
 }
 
-gene = 'Ager'
-p1 = getdensity(exprMatrix_KO, gene = gene, ident = 'KO')
-p2 = getdensity(exprMatrix_WT, gene = gene, col = 'steelblue', ident = 'WT')
+gene <- 'Ager'
+p1 <- getdensity(KO_count, gene = gene, ident = 'KO')
+p2 <- getdensity(WT_count, gene = gene, col = 'steelblue', ident = 'WT')
 ggarrange(p1,p2,ncol = 1, align = 'hv')
 ```
 
@@ -118,11 +118,11 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 ## Input - scRNA-seq Expression matrix 
 ```{r}
 # Loading Data
-exprMatrix = read.csv('https://github.com/Xenon8778/SplineDV/raw/main/data/WTdata.csv', row.names = 1) # WT Sample
+WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
 ```
 ## Running Spline-HVG
 ```{r runSplineHVG, results='hide'}
-HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100, ncells = 3, ncounts = 200)
+HVG_res <- HVG_splinefit(WT_count, nHVGs = 100, ncells = 3, ncounts = 200)
 head(HVG_res)
 ```
 
@@ -132,7 +132,7 @@ head(HVG_res)
 
 ```{r showHVGList}
 # Extracting HVG Gene list
-HVG_list = rownames(HVG_res)[HVG_res$HVG == TRUE]
+HVG_list <- rownames(HVG_res)[HVG_res$HVG == TRUE]
 HVG_list
 ```
 
