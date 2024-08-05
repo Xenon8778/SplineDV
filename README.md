@@ -15,13 +15,13 @@ The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-s
 ```R
 # Load Data
 library(SplineDV)
-exprMatrix_WT = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
-exprMatrix_KO = read.csv('../data/KOdata.csv', row.names = 1) # KO Sample
+WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+KO_count <- get(data("KO_count", package = 'SplineDV')) # KO Sample
 ```
 ## Running Spline-DV
 For the analysis, the test data (X) is always use in contrast with the control data (Y).
 ```R
-DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+DV_res <- DV_splinefit(X = KO_count, Y = WT_count, ncells = 3, ncounts = 200)
 head(DV_res)
 ```
 
@@ -29,10 +29,10 @@ head(DV_res)
 
 ```R
 ## Loading Data
-exprMatrix = read.csv('../data/WTdata.csv', row.names = 1) # WT Sample
+WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
 
 ## Running Spline-HVG
-HVG_res = HVG_splinefit(exprMatrix, nHVGs = 100)
+HVG_res <- HVG_splinefit(WT_count, nHVGs = 100, ncells = 3, ncounts = 200)
 head(HVG_res)
 ```
 
