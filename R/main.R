@@ -285,14 +285,19 @@ DV_splinefit <- function(X = x, Y = y,  ncounts = 500, ncells = 15,
                           Y_dvecz = Y_filt$dvecz),
                      row.names = feat)
 
+  # Trimming zeros spline differences
+  df <- df[!c(df$dist1 == 0 & df$dist2 == 0),]
+
   # Computing Diff Distance
   DV_res <- df %>% as_tibble %>%
     mutate(dist_diff = dist1 - dist2) %>%
-    mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2)+1)  %>%
+    mutate(Vector_Dist = sqrt((X_dvecx-Y_dvecx)^2+(X_dvecy-Y_dvecy)^2+(X_dvecz-Y_dvecz)^2))  %>%
     mutate(Direction = dist_diff/abs(dist_diff)) %>%
     mutate(Z= as.numeric(scale(Vector_Dist))) %>%
     mutate(Pval = 2*pnorm(abs(Z),lower.tail = FALSE)) %>%
     arrange(Pval)
+
+
 
   res_out <- DV_res %>% select(genes,mu1,mu2,CV1,CV2,drop1,drop2,dist1,dist2,
                               Vector_Dist,Direction,Pval) %>% as.data.frame()

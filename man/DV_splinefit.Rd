@@ -26,9 +26,9 @@ Differential Variability analysis
 \examples{
 # example code
 # Load Data
-exprMatrix_WT = data(WTdata, package = "SplineDV") # WT Sample
-exprMatrix_KO = data(WTdata, package = "SplineDV") # KO Sample
-DV_res = DV_splinefit(X = exprMatrix_KO, Y = exprMatrix_WT)
+WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+KO_count <- get(data("KO_count", package = 'SplineDV')) # KO Sample
+DV_res <- DV_splinefit(X = KO_count, Y = WT_count)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>
