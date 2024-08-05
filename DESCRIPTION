@@ -26,7 +26,7 @@ Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2024-08-05 20:25:49 UTC; xenon8778
+Packaged: 2024-08-05 21:08:57 UTC; xenon8778
 Author: Shreyan Gupta [aut, cre] (<https://orcid.org/0000-0002-1904-9862>),
   James Cai [aut] (<https://orcid.org/0000-0002-8081-6725>),
   Selim Romero [aut] (<https://orcid.org/0000-0002-2401-6272>)
