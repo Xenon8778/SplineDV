@@ -25,7 +25,4 @@ VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 NeedsCompilation: no
 Packaged: 2024-08-06 17:06:06 UTC; xenon8778
-Author: Shreyan Gupta [cre] (<https://orcid.org/0000-0002-1904-9862>),
-  James Cai [aut] (<https://orcid.org/0000-0002-8081-6725>)
-Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
 Depends: R (>= 3.5.0)
