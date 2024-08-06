@@ -5,11 +5,9 @@ Title: Differential Variability (DV) analysis for single-cell RNA
         across two experimental conditions)
 Description: A spline based scRNA-seq method for identifying differentially variable (DV) genes across two experimental conditions. Spline-DV constructs a 3D spline from 3 key gene statistics: mean expression, coefficient of variance, and dropout rate. This is done for both conditions. The 3D spline provides the “expected” behavior of genes in each condition. The distance of the observed mean, CV and dropout rate of each gene from the expected 3D spline is used to measure variability. As the final step, the spline-DV method compares the variabilities of each condition to identify differentially variable (DV) genes.
 Version: 0.99.0
-Authors@R: c(person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu.edu", role = c("aut", "cre"), comment = c(ORCID = '0000-0002-1904-9862')),
-          person(given = "Selim", family = "Romero", role = "aut", comment = c(ORCID = '0000-0002-2401-6272')),
-          person(given = "Victoria", family = "Gatlin", role = "ctb"),
-          person(given = "James", family = "Cai", role = "aut", comment = c(ORCID = '0000-0002-8081-6725'))
-          )
+Authors@R: c(
+  person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu.edu", role = c("aut", "cre"), comment = c(ORCID = '0000-0002-1904-9862')),
+  person(given = "James", family = "Cai", role = "aut", comment = c(ORCID = '0000-0002-8081-6725')))
 BugReports: https://github.com/Xenon8778/SplineDV/issues
 URL: https://github.com/Xenon8778/SplineDV
 License: GPL (>=2)
@@ -26,10 +24,8 @@ Suggests: knitr, rmarkdown, ggplot2, DropletUtils
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2024-08-06 16:16:14 UTC; xenon8778
+Packaged: 2024-08-06 16:58:49 UTC; xenon8778
 Author: Shreyan Gupta [aut, cre] (<https://orcid.org/0000-0002-1904-9862>),
-  Selim Romero [aut] (<https://orcid.org/0000-0002-2401-6272>),
-  Victoria Gatlin [ctb],
   James Cai [aut] (<https://orcid.org/0000-0002-8081-6725>)
 Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
 Depends: R (>= 3.5.0)
