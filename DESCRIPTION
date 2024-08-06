@@ -10,7 +10,6 @@ Authors@R: c(person(given = "Shreyan", family = "Gupta", email = "xenon8778@tamu
           person(given = "Victoria", family = "Gatlin", role = "aut"),
           person(given = "James", family = "Cai", role = "aut", comment = c(ORCID = '0000-0002-8081-6725'))
           )
-Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
 BugReports: https://github.com/Xenon8778/SplineDV/issues
 URL: https://github.com/Xenon8778/SplineDV
 License: GPL (>=2)
@@ -27,9 +26,10 @@ Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
 NeedsCompilation: no
-Packaged: 2024-08-05 22:14:48 UTC; xenon8778
+Packaged: 2024-08-06 15:50:11 UTC; xenon8778
 Author: Shreyan Gupta [aut, cre] (<https://orcid.org/0000-0002-1904-9862>),
   Selim Romero [aut] (<https://orcid.org/0000-0002-2401-6272>),
   Victoria Gatlin [aut],
   James Cai [aut] (<https://orcid.org/0000-0002-8081-6725>)
+Maintainer: Shreyan Gupta <xenon8778@tamu.edu>
 Depends: R (>= 3.5.0)

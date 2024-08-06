@@ -1,6 +1,14 @@
 ---
 title: "Introduction to Spline-DV"
-author: "Shreyan Gupta, Victoria Gatlin, Selim Romero, James J Cai"
+author: 
+- name: Shreyan Gupta
+  affiliation: Veterinary Integrative Biosciences, Texas A&M University
+- name: Victoria Gatlin
+  affiliation: Veterinary Integrative Biosciences, Texas A&M University
+- name: Selim Romero
+  affiliation: Department of Nutrition, Texas A&M University
+- name: James J Cai
+  affiliation: Veterinary Integrative Biosciences, Texas A&M University
 abstract: "This tutorial shows how to use **Spline-DV** for Differential Variability
   Analysis across two single-cell RNA seq samples and **Spline-HVG** for highly variable
   feature selection"
@@ -25,35 +33,38 @@ One of the most intuitive ways to evaluate a gene expression change is using Dif
 
 # Installation
 ```{r Installation, eval=FALSE}
-if (!require("devtools")) install.packages("devtools")
+if (!require("devtools", quietly = TRUE))
+  install.packages("devtools")
+
 devtools::install_github("Xenon8778/SplineDV")
 ```
 
-
 # Overview of the SplineDV workflow 
 ## Input - Two expression matrix 
-The expression matrix should be formatted with the genes/features as rows and cells as columns.  Ideally, the matrix will be stored in sparse format to save memory.
+The expression matrix should be formatted with the genes/features as rows and cells as columns. Ideally, the matrix will be stored in sparse format to save memory.
+The two input matrices must be stored in two separate count expression matrices or SingleCellExperiment objects.
 
-The two input matrices must be stored in two separate expression matrices or Seurat objects.
+Reading 10X .h5 files as SingleCellExperiment objects using the [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) package
+```{r loadingSingleExprMat2, eval=FALSE}
+exprMatrix <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment.h5', type = 'HDF5')
 
-```{r loadingSingleExprMat, eval=FALSE}
-# i.e. Reading a Seurat RDS file
+exprMatrix_1 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_1.h5', type = 'HDF5')
+exprMatrix_2 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_2.h5', type = 'HDF5')
+```
+
+Reading .rds files generated using the [Seurat](https://satijalab.org/seurat/) package
+```{r loadingSeurat1, eval=FALSE}
+# Reading a Seurat RDS file
 exprMatrix <- readRDS('mySingleCellExperiment.rds')
+exprMatrix <- Seurat::GetAssayData(exprMatrix, layers = 'count') # Extract counts
 
-# or .h5 file experiment
-exprMatrix <- Seurat::Read10X_h5('mySingleCellExperiment.h5')
-```
-
-Loading two separate expression matrices
-```{r loadingSeparateExprMat, eval=FALSE}
-# i.e. Reading a Seurat RDS file
+# Reading two Seurat RDS file
 exprMatrix_1 <- readRDS('mySingleCellExperiment_1.rds')
+exprMatrix_1 <- Seurat::GetAssayData(exprMatrix_1, layers = 'count') # Extract counts
 exprMatrix_2 <- readRDS('mySingleCellExperiment_2.rds')
-
-# or .h5 file experiment
-exprMatrix_1 <- Seurat::Read10X_h5('mySingleCellExperiment_1.h5')
-exprMatrix_2 <- Seurat::Read10X_h5('mySingleCellExperiment_2.h5')
+exprMatrix_2 <- Seurat::GetAssayData(exprMatrix_2, layers = 'count') # Extract counts
 ```
+
 
 ## Loading scRNAseq count example data
 The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-seq study by Liebler *et al.* ^1^
