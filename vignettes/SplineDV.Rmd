@@ -65,7 +65,6 @@ exprMatrix_2 <- readRDS('mySingleCellExperiment_2.rds')
 exprMatrix_2 <- Seurat::GetAssayData(exprMatrix_2, layers = 'count') # Extract counts
 ```
 
-
 ## Loading scRNAseq count example data
 The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-seq study by Liebler *et al.* ^1^
 
@@ -90,10 +89,10 @@ head(DV_res)
 ## Visualize Gene Expression distributions
 
 ```{r}
-library(MASS)
-library(scales)
-library(ggplot2)
-library(ggpubr)
+require(MASS)
+require(scales)
+require(ggplot2)
+require(ggpubr)
 
 getdensity <- function(data, gene, col = 'firebrick3',
                        ident = NULL, plot.mu = FALSE){
