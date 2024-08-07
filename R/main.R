@@ -26,7 +26,7 @@
 #' @examples
 #' # example code
 #' ## Load Data
-#' WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+#' load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 #' HVG_res <- HVG_splinefit(WT_count, nHVGs = 100)
 
 HVG_splinefit <- function(X = x, QC = TRUE,
@@ -184,7 +184,7 @@ HVG_splinefit <- function(X = x, QC = TRUE,
 #' @examples
 #' # example code
 #' ## Load Data
-#' WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+#' load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 #' adata = HVG_QC(WT_count)
 
 HVG_QC <- function(X = x, ncounts = 1000, ncells = 15, mt.perc = 15){
@@ -233,8 +233,8 @@ HVG_QC <- function(X = x, ncounts = 1000, ncells = 15, mt.perc = 15){
 #' @examples
 #' # example code
 #' # Load Data
-#' WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
-#' KO_count <- get(data("KO_count", package = 'SplineDV')) # KO Sample
+#' load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
+#' load(system.file("extdata", "KO_count.rda", package = "SplineDV")) # KO Sample
 #' DV_res <- DV_splinefit(X = KO_count, Y = WT_count)
 
 DV_splinefit <- function(X = x, Y = y,  ncounts = 500, ncells = 15,
@@ -306,11 +306,3 @@ DV_splinefit <- function(X = x, Y = y,  ncounts = 500, ncells = 15,
   output <- list(HVG_X = res_X, HVG_Y = res_Y, DV = res_out)
   return(res_out)
 }
-
-
-
-#' # Test Code
-#' so <- readRDS('data/Nkx2-1_ENDO.rds')
-#' so_WT <- subset(so, subset = Batch == 'WT')
-#' so_KO <- subset(so, subset = Batch == 'KO')
-#' DV_res <- DV_splinefit(so_KO,so_WT)

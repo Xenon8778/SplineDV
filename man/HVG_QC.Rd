@@ -24,7 +24,7 @@ QC filter scRNA-seq expression data
 \examples{
 # example code
 ## Load Data
-WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 adata = HVG_QC(WT_count)
 }
 \author{

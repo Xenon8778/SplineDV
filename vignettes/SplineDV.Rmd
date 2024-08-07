@@ -70,8 +70,8 @@ The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-s
 
 ```{r loadingExampledata}
 # Load Data
-WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
-KO_count <- get(data("KO_count", package = 'SplineDV')) # KO Sample
+load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
+load(system.file("extdata", "KO_count.rda", package = "SplineDV")) # KO Sample
 ```
 
 ## Running Spline-DV
@@ -128,7 +128,7 @@ ggarrange(p1,p2,ncol = 1, align = 'hv')
 ## Input - scRNA-seq Expression matrix 
 ```{r}
 # Loading Data
-WT_count <- get(data("WT_count", package = 'SplineDV')) # WT Sample
+load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 ```
 ## Running Spline-HVG
 ```{r runSplineHVG, results='hide'}
