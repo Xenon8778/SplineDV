@@ -13,6 +13,7 @@ Encoding: UTF-8
 LazyData: true
 biocViews: Software, SingleCell, Sequencing, DifferentialExpression, RNASeq, GeneExpression, Transcriptomics, FeatureExtraction
 Depends: 
+    R (>= 3.5.0),
     SingleCellExperiment
 Imports: 
     plotly,
@@ -35,5 +36,4 @@ Suggests:
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 RoxygenNote: 7.3.2
-Depends: R (>= 3.5.0)
 Config/testthat/edition: 3
