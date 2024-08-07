@@ -10,7 +10,7 @@ BugReports: https://github.com/Xenon8778/SplineDV/issues
 URL: https://github.com/Xenon8778/SplineDV
 License: GPL (>=2)
 Encoding: UTF-8
-LazyData: true
+LazyData: false
 biocViews: Software, SingleCell, Sequencing, DifferentialExpression, RNASeq, GeneExpression, Transcriptomics, FeatureExtraction
 Depends: 
     R (>= 3.5.0),
