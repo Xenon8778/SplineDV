@@ -11,7 +11,7 @@ URL: https://github.com/Xenon8778/SplineDV
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: false
-biocViews: Sequencing, SingleCell, Software, DifferentialExpression, RNASeq, FunctionalGenomics, GeneExpression, Transcription, Transcriptomics, FeatureExtraction
+biocViews: Software, SingleCell, Sequencing, DifferentialExpression, RNASeq, GeneExpression, Transcriptomics, FeatureExtraction
 Imports: plotly,
     dplyr,
     scuttle,
