@@ -12,14 +12,16 @@ License: GPL (>=2)
 Encoding: UTF-8
 LazyData: false
 biocViews: Software, SingleCell, Sequencing, DifferentialExpression, RNASeq, GeneExpression, Transcriptomics, FeatureExtraction
-Imports: plotly,
+Depends: 
+    SingleCellExperiment
+Imports: 
+    plotly,
     dplyr,
     scuttle,
     methods,
     Biobase,
     sparseMatrixStats,
     SummarizedExperiment,
-    SingleCellExperiment,
     Matrix (>= 1.6.4),
     utils
 Suggests: 
