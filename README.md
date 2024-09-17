@@ -82,5 +82,11 @@ HVG_plot(HVG_res)
 ```
 ![image](https://github.com/user-attachments/assets/5942ef6e-cdd8-496c-a316-b3cfa60826e7)
 
+```R
+# Plot individual genes
+HVG_plot(HVG_res,'Eln') 
+```
+![image](https://github.com/user-attachments/assets/7862108c-06cf-4769-8b32-b3248a1ce464)
+
 # References
 1. Liebler JM, Marconett CN, Juul N, et al. Combinations of differentiation markers distinguish subpopulations of alveolar epithelial cells in adult lung. Am J Physiol Lung Cell Mol Physiol. 2016;310(2):L114-L120. doi:10.1152/ajplung.00337.2015
