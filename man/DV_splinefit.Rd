@@ -4,7 +4,7 @@
 \alias{DV_splinefit}
 \title{Spline-DV}
 \usage{
-DV_splinefit(X = x, Y = y, ncounts = 500, ncells = 15, mt.perc = 15)
+DV_splinefit(X, Y, ncounts = 500, ncells = 15, mtPerc = 15, detailed = FALSE)
 }
 \arguments{
 \item{X}{Count matrix or SingleCellExperiment (Test sample)}
@@ -15,10 +15,12 @@ DV_splinefit(X = x, Y = y, ncounts = 500, ncells = 15, mt.perc = 15)
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
 
-\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+\item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+
+\item{detailed}{A boolean value. Defines whether to add individual HVG_splinefit data.frame to the output.}
 }
 \value{
-A DataFrame with DV Statistics
+A data.frame with DV Statistics
 }
 \description{
 Differential Variability analysis
@@ -26,9 +28,9 @@ Differential Variability analysis
 \examples{
 # example code
 # Load Data
-load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
-load(system.file("extdata", "KO_count.rda", package = "SplineDV")) # KO Sample
-DV_res <- DV_splinefit(X = KO_count, Y = WT_count)
+load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
+load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
+DV_res <- DV_splinefit(X=KO_count, Y=WT_count)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

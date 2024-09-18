@@ -5,15 +5,14 @@
 \title{Spline-HVG}
 \usage{
 HVG_splinefit(
-  X = x,
+  X,
   QC = TRUE,
   ncounts = 500,
   ncells = 15,
-  mt.perc = 15,
+  mtPerc = 15,
   degf = 15,
   spar = 0.75,
   nHVGs = 2000,
-  show.spline = FALSE,
   use.ndist = TRUE
 )
 }
@@ -26,7 +25,7 @@ HVG_splinefit(
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
 
-\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+\item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 
 \item{degf}{An integer value. Degrees of freedom for the Spline.}
 
@@ -34,12 +33,10 @@ HVG_splinefit(
 
 \item{nHVGs}{An integer value. Number of top Highly Variable Genes (HVGs) to select.}
 
-\item{show.spline}{A Boolean value (TRUE/FALSE), if TRUE, shows the 3D Spline as Plotly figure.}
-
 \item{use.ndist}{A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.}
 }
 \value{
-A DataFrame with HVG selection Statistics
+A data.frame with HVG selection Statistics
 }
 \description{
 Compute Highly Variable Genes from an scRNAseq expression data.

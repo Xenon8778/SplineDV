@@ -4,7 +4,7 @@
 \alias{HVG_QC}
 \title{Quality control}
 \usage{
-HVG_QC(X = x, ncounts = 1000, ncells = 15, mt.perc = 15)
+HVG_QC(X, ncounts = 1000, ncells = 15, mtPerc = 15)
 }
 \arguments{
 \item{X}{Count matrix or SingleCellExperiment}
@@ -13,7 +13,7 @@ HVG_QC(X = x, ncounts = 1000, ncells = 15, mt.perc = 15)
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
 
-\item{mt.perc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
+\item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 }
 \value{
 QC filtered SingleCellExperiment
@@ -24,7 +24,7 @@ QC filter scRNA-seq expression data
 \examples{
 # example code
 ## Load Data
-load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
+load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
 adata = HVG_QC(WT_count)
 }
 \author{

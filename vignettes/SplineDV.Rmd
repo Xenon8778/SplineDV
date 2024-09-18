@@ -27,43 +27,23 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
 # Why to use SplineDV? 
 ## Beyond Averages
 One of the most intuitive ways to evaluate a gene expression change is using Differential Expression (DE) analysis. Traditionally, DE analysis focuses on identifying genes that are up- or down-regulated (increased or decreased expression) between conditions, typically employing a basic mean-difference approach. We propose a paradigm shift that acknowledges the central role of gene expression variability in cellular function and challenges the current dominance of mean-based DE analysis in single-cell studies. We suggest that scRNA-seq data analysis should embrace the role of inherent gene expression variability in defining cellular function and move beyond mean-based approaches. 
 
 # Installation
 ```{r Installation, eval=FALSE}
-if (!require("devtools", quietly = TRUE))
-  install.packages("devtools")
-
-devtools::install_github("Xenon8778/SplineDV")
+BiocManager::install("Xenon8778/SplineDV")
 ```
 
 # Overview of the SplineDV workflow 
 ## Input - Two expression matrix 
-The expression matrix should be formatted with the genes/features as rows and cells as columns. Ideally, the matrix will be stored in sparse format to save memory.
-The two input matrices must be stored in two separate count expression matrices or SingleCellExperiment objects.
-
-Reading 10X .h5 files as SingleCellExperiment objects using the [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) package
-```{r loadingSingleExprMat2, eval=FALSE}
-exprMatrix <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment.h5', type = 'HDF5')
-
-exprMatrix_1 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_1.h5', type = 'HDF5')
-exprMatrix_2 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_2.h5', type = 'HDF5')
-```
-
-Reading .rds files generated using the [Seurat](https://satijalab.org/seurat/) package
-```{r loadingSeurat1, eval=FALSE}
-# Reading a Seurat RDS file
-exprMatrix <- readRDS('mySingleCellExperiment.rds')
-exprMatrix <- Seurat::GetAssayData(exprMatrix, layers = 'count') # Extract counts
-
-# Reading two Seurat RDS file
-exprMatrix_1 <- readRDS('mySingleCellExperiment_1.rds')
-exprMatrix_1 <- Seurat::GetAssayData(exprMatrix_1, layers = 'count') # Extract counts
-exprMatrix_2 <- readRDS('mySingleCellExperiment_2.rds')
-exprMatrix_2 <- Seurat::GetAssayData(exprMatrix_2, layers = 'count') # Extract counts
-```
+The expression matrix should be formatted with the genes/features as rows and cells as columns.
+The two input matrices for DV_splinefit must be stored as two separate count expression matrices or SingleCellExperiment objects.
 
 ## Loading scRNAseq count example data
 The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-seq study by Liebler *et al.* ^1^
@@ -79,74 +59,50 @@ For the analysis, the test data (X) is always use in contrast with the control d
 ```{r runSplineDV, results='hide'}
 library(SplineDV)
 DV_res <- DV_splinefit(X = KO_count, Y = WT_count, ncells = 3, ncounts = 200)
-head(DV_res)
 ```
 
 ```{r showResults, echo=FALSE}
 head(DV_res)
 ```
 
-## Visualize Gene Expression distributions
+## Visualize Gene Expression statistics
 
-```{r}
-require(MASS)
-require(scales)
-require(ggplot2)
-require(ggpubr)
-
-getdensity <- function(data, gene, col = 'firebrick3',
-                       ident = NULL, plot.mu = FALSE){
-
-  dat <- log(as.numeric(data[gene,])+1) # Log1p transforming
-  dat.line <- density(dat)
-
-  df <- data.frame(x = dat.line$x, y = dat.line$y, Genotype = ident)
-  p1 <- ggplot(df, aes(x = x, y = y))+ theme_classic() +
-    geom_area(aes(x = x, y = y), color = col,
-              fill = alpha(col,0.3), linewidth = 1) +
-    labs(x = 'Expression',y = 'Density') +
-    ggtitle(paste0(ident,' ',gene, ' Density'))
-  if (is.null(legend) == FALSE){
-    p1 = p1
-    p1
-  }
-  if (plot.mu == TRUE){
-    p1 <- p1 + geom_vline(xintercept = log(mean(dat)+1),
-                         col = col, lty = 'dashed', linewidth = 1)
-  }
-  return(p1)
-}
-
-gene <- 'Ager'
-p1 <- getdensity(KO_count, gene = gene, ident = 'KO')
-p2 <- getdensity(WT_count, gene = gene, col = 'steelblue', ident = 'WT')
-ggarrange(p1,p2,ncol = 1, align = 'hv')
+```{r plotDV, out.width="75%", out.height="75%", fig.format='png'}
+library(plotly)
+fig <- DV_plot(DV_res)
+fig 
 ```
 
  
 # Highly Variable Genes (HVGs) using Spline-HVG 
 ## Input - scRNA-seq Expression matrix 
-```{r}
+```{r LoadHVGData}
 # Loading Data
 load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 ```
 ## Running Spline-HVG
 ```{r runSplineHVG, results='hide'}
-HVG_res <- HVG_splinefit(WT_count, nHVGs = 100, ncells = 3, ncounts = 200)
-head(HVG_res)
+HVG_res <- HVG_splinefit(WT_count, nHVGs = 20, ncells = 3, ncounts = 200)
 ```
-
 ```{r showHVGResults, echo=FALSE}
 head(HVG_res)
 ```
-
 ```{r showHVGList}
 # Extracting HVG Gene list
 HVG_list <- rownames(HVG_res)[HVG_res$HVG == TRUE]
-HVG_list
+head(HVG_list)
+```
+## Visualize Highly Variable Genes
+```{r plotHVG, out.width="75%", out.height="75%"}
+fig <- HVG_plot(HVG_res)
+fig
 ```
 
 # Appendix
+## Citing SplineDV
+```{r "citation"}
+citation("SplineDV")
+```
 ## References
 1. Liebler JM, Marconett CN, Juul N, et al. Combinations of differentiation markers distinguish subpopulations of alveolar epithelial cells in adult lung. Am J Physiol Lung Cell Mol Physiol. 2016;310(2):L114-L120. doi:10.1152/ajplung.00337.2015
 

@@ -1,0 +1,8 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Beyond Differential Expression: Embracing Cell-to-Cell Variability in Single-Cell Gene Expression Data Analysis",
+  author   = c(person("Victoria", "Gatlin"), person("Shreyan", "Gupta"), person("Selim", "Romero"), person("Robert", "Chapkin"), person("James", "Cai")),
+  journal  = "bioRxiv",
+  year     = "2024",
+  doi      = "https://doi.org/10.1101/2024.08.08.607086"
+)

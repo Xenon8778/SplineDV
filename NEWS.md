@@ -1,5 +1,11 @@
 # *News*
 
+# SplineDV v0.99.4 (18/09/2024)
+==============
+Initial Submission
+
+* **Bioconductor** Peer review changes Submission
+
 # SplineDV v0.99.0 (12/07/2024)
 ==============
 Initial Submission
