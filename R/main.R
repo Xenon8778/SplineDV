@@ -291,11 +291,11 @@ DV_plot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
                                             'Y_splinez')]))
   colnames(df_subY) <- c('logMean', 'logCV', 'Dropout')
 
-  fig <- plot_ly(df %>% arrange(`drop1`), type="scatter3d", mode='markers') %>%
-    add_trace(data = df %>% arrange(`drop1`),x=~X_splinex, y=~X_spliney, z=~X_splinez,
+  fig <- plot_ly(df %>% arrange(drop1), type="scatter3d", mode='markers') %>%
+    add_trace(data = df %>% arrange(drop1),x=~X_splinex, y=~X_spliney, z=~X_splinez,
               mode='lines',
               line=list(width=lwd, color='firebrick', opacity=1, reverscale=FALSE)) %>%
-    add_trace(data = df %>% arrange(`drop2`),x=~Y_splinex, y=~Y_spliney, z=~Y_splinez,
+    add_trace(data = df %>% arrange(drop2),x=~Y_splinex, y=~Y_spliney, z=~Y_splinez,
               mode='lines',
               line=list(width=lwd, color='steelblue', opacity=1, reverscale=FALSE)) %>%
     add_trace(data = df_subX, x=~logMean, y=~logCV, z=~Dropout,
@@ -396,14 +396,14 @@ DV_splinefit <- function(X, Y, ncounts=500, ncells=15,
 
   # Computing Diff Distance
   DV_res <- df %>% as_tibble %>%
-    mutate('dist1'=sqrt(`X_dvecx`^2 + `X_dvecy`^2 + `X_dvecz`^2)) %>%
-    mutate('dist2'=sqrt(`Y_dvecx`^2 + `Y_dvecy`^2 + `Y_dvecz`^2)) %>%
-    mutate('Vector_Dist'=sqrt((`X_dvecx` - `Y_dvecx`)^2 +
-                                (`X_dvecy` - `Y_dvecy`)^2 +
-                                (`X_dvecz` - `Y_dvecz`)^2))  %>%
-    mutate('Direction'=sign(`dist1` - `dist2`)) %>%
-    mutate('Z'= as.numeric(scale(`Vector_Dist`))) %>%
-    mutate('Pval' = 2*pnorm(abs(`Z`), lower.tail = FALSE)) %>%
+    mutate('dist1'=sqrt(X_dvecx^2 + X_dvecy^2 + X_dvecz^2)) %>%
+    mutate('dist2'=sqrt(Y_dvecx^2 + Y_dvecy^2 + Y_dvecz^2)) %>%
+    mutate('Vector_Dist'=sqrt((X_dvecx - Y_dvecx)^2 +
+                                (X_dvecy - Y_dvecy)^2 +
+                                (X_dvecz - Y_dvecz)^2))  %>%
+    mutate('Direction'=sign(dist1 - dist2)) %>%
+    mutate('Z'= as.numeric(scale(Vector_Dist))) %>%
+    mutate('Pval' = 2*pnorm(abs(Z), lower.tail = FALSE)) %>%
     arrange(Pval)
 
   res_out <- DV_res %>% select(genes, mu1, mu2, CV1, CV2, drop1, drop2,
