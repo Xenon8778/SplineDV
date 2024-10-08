@@ -69,7 +69,7 @@ HVG_splinefit <- function(X, QC=TRUE,
   splinefit_df$Dropout <- Dropout
   splinefit_df$logMean <- log(Means+1)
   splinefit_df$logCV <- log(CV+1)
-  splinefit_df <- splinefit_df %>% arrange(Dropout)
+  splinefit_df <- splinefit_df %>% arrange(logMean) # arrange by Mean expression
   # splinefit_df <- splinefit_df %>% filter(Dropout>0.01 & Dropout<0.99) # Trimming ends
 
   # Calculate the differences and the squared differences between consecutive elements
@@ -219,7 +219,7 @@ HVG_plot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
                    mode='markers', color=~HVG, colors=c('grey','red'),
                    type="scatter3d", text=~genenames,
                    marker=list(size=ptSize, opacity=0.5)) %>%
-      add_trace(data = df %>% arrange(Dropout),x=~splinex, y=~spliney, z=~splinez,
+      add_trace(data = df %>% arrange(logMean),x=~splinex, y=~spliney, z=~splinez,
                 type="scatter3d", mode='lines+markers', showlegend = FALSE,
                 marker=list(size=1, color='black'),
                 line=list(width=lwd, color='black', opacity=1, reverscale=FALSE)) %>%
@@ -233,7 +233,7 @@ HVG_plot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
     fig <- plot_ly(df, x=~logMean, y=~logCV, z=~Dropout,
                    mode='markers', type="scatter3d", text=~genenames,
                    marker=list(size=ptSize, color='grey', opacity=0.5)) %>%
-      add_trace(data = df %>% arrange(Dropout),x=~splinex, y=~spliney, z=~splinez,
+      add_trace(data = df %>% arrange(logMean),x=~splinex, y=~spliney, z=~splinez,
                 mode='lines+markers',
                 marker=list(size=1, color='black', opacity=1),
                 line=list(width=lwd, color='black', opacity=1, reverscale=FALSE)) %>%
@@ -291,11 +291,11 @@ DV_plot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
                                             'Y_splinez')]))
   colnames(df_subY) <- c('logMean', 'logCV', 'Dropout')
 
-  fig <- plot_ly(df %>% arrange(drop1), type="scatter3d", mode='markers') %>%
-    add_trace(data = df %>% arrange(drop1),x=~X_splinex, y=~X_spliney, z=~X_splinez,
+  fig <- plot_ly(df %>% arrange(mu1), type="scatter3d", mode='markers') %>%
+    add_trace(data = df %>% arrange(mu1),x=~X_splinex, y=~X_spliney, z=~X_splinez,
               mode='lines',
               line=list(width=lwd, color='firebrick', opacity=1, reverscale=FALSE)) %>%
-    add_trace(data = df %>% arrange(drop2),x=~Y_splinex, y=~Y_spliney, z=~Y_splinez,
+    add_trace(data = df %>% arrange(mu2),x=~Y_splinex, y=~Y_spliney, z=~Y_splinez,
               mode='lines',
               line=list(width=lwd, color='steelblue', opacity=1, reverscale=FALSE)) %>%
     add_trace(data = df_subX, x=~logMean, y=~logCV, z=~Dropout,
