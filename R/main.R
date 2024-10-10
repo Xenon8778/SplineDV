@@ -268,8 +268,8 @@ HVGPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' ## Load Data
 #' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
 #' load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-#' DV_res <- splineDV(X=KO_count, Y=WT_count)
-#' fig <- DVPlot(DV_res)
+#' DVres <- splineDV(X=KO_count, Y=WT_count)
+#' fig <- DVPlot(DVres)
 #' print(fig)
 
 DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
@@ -340,7 +340,7 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' # Load Data
 #' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
 #' load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-#' DV_res <- splineDV(X=KO_count, Y=WT_count)
+#' DVres <- splineDV(X=KO_count, Y=WT_count)
 
 splineDV <- function(X, Y, ncounts=500, ncells=15,
                          mtPerc=15, detailed=FALSE) {
@@ -395,7 +395,7 @@ splineDV <- function(X, Y, ncounts=500, ncells=15,
   df <- df[!c(df$dist1 == 0 & df$dist2 == 0),]
 
   # Computing Diff Distance
-  DV_res <- df %>% as_tibble %>%
+  DVres <- df %>% as_tibble %>%
     mutate('dist1'=sqrt(X_dvecx^2 + X_dvecy^2 + X_dvecz^2)) %>%
     mutate('dist2'=sqrt(Y_dvecx^2 + Y_dvecy^2 + Y_dvecz^2)) %>%
     mutate('vectorDist'=sqrt((X_dvecx - Y_dvecx)^2 +
@@ -406,13 +406,13 @@ splineDV <- function(X, Y, ncounts=500, ncells=15,
     mutate('Pval' = 2*pnorm(abs(Z), lower.tail = FALSE)) %>%
     arrange(Pval)
 
-  res_out <- DV_res %>% select(genes, mu1, mu2, CV1, CV2, drop1, drop2,
+  resOut <- DVres %>% select(genes, mu1, mu2, CV1, CV2, drop1, drop2,
                                dist1, dist2, X_splinex, X_spliney, X_splinez,
                                Y_splinex, Y_spliney, Y_splinez,
                               vectorDist, Direction, Pval) %>% as.data.frame()
-  output <- list(HVG_X=res_X, HVG_Y=res_Y, DV=res_out)
+  output <- list(HVG_X=res_X, HVG_Y=res_Y, DV=resOut)
   if(detailed){
-    res_out <- output
+    resOut <- output
   }
-  return(res_out)
+  return(resOut)
 }
