@@ -44,8 +44,8 @@ Compute Highly Variable Genes from an scRNAseq expression data.
 \examples{
 # example code
 ## Load Data
-load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
-HVG_res <- splineHVG(WT_count, nHVGs = 100)
+WTcount <- SplineDV::WTcount # WT Sample
+HVG_res <- splineHVG(WTcount, nHVGs = 100)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

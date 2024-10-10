@@ -26,10 +26,10 @@ Plots 3D gene statistic scatter plot of target genes in twop conditions
 \examples{
 # example code
 ## Load Data
-load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-DV_res <- splineDV(X=KO_count, Y=WT_count)
-fig <- DVPlot(DV_res)
+WTcount <- SplineDV::WTcount # WT Sample
+KOcount <- SplineDV::KOcount # KO Sample
+DVres <- splineDV(X=KOcount, Y=WTcount)
+fig <- DVPlot(DVres)
 print(fig)
 }
 \author{

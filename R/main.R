@@ -24,8 +24,8 @@
 #' @examples
 #' # example code
 #' ## Load Data
-#' load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
-#' HVG_res <- splineHVG(WT_count, nHVGs = 100)
+#' WTcount <- SplineDV::WTcount # WT Sample
+#' HVG_res <- splineHVG(WTcount, nHVGs = 100)
 
 splineHVG <- function(X, QC=TRUE,
                           ncounts=500, ncells=15, mtPerc=15,
@@ -159,8 +159,8 @@ splineHVG <- function(X, QC=TRUE,
 #' @examples
 #' # example code
 #' ## Load Data
-#' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-#' adata = hvgQC(WT_count)
+#' WTcount <- SplineDV::WTcount # WT Sample
+#' adata = hvgQC(WTcount)
 
 hvgQC <- function(X, ncounts=1000, ncells=15, mtPerc=15){
 
@@ -207,8 +207,8 @@ hvgQC <- function(X, ncounts=1000, ncells=15, mtPerc=15){
 #' @examples
 #' # example code
 #' ## Load Data
-#' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-#' hvgDF <- splineHVG(WT_count)
+#' WTcount <- SplineDV::WTcount # WT Sample
+#' hvgDF <- splineHVG(WTcount)
 #' fig <- HVGPlot(hvgDF)
 #' print(fig)
 
@@ -266,9 +266,9 @@ HVGPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' @examples
 #' # example code
 #' ## Load Data
-#' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-#' load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-#' DVres <- splineDV(X=KO_count, Y=WT_count)
+#' WTcount <- SplineDV::WTcount # WT Sample
+#' KOcount <- SplineDV::KOcount # KO Sample
+#' DVres <- splineDV(X=KOcount, Y=WTcount)
 #' fig <- DVPlot(DVres)
 #' print(fig)
 
@@ -338,9 +338,9 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' @examples
 #' # example code
 #' # Load Data
-#' load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-#' load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-#' DVres <- splineDV(X=KO_count, Y=WT_count)
+#' WTcount <- SplineDV::WTcount # WT Sample
+#' KOcount <- SplineDV::KOcount # KO Sample
+#' DVres <- splineDV(X=KOcount, Y=WTcount)
 
 splineDV <- function(X, Y, ncounts=500, ncells=15,
                          mtPerc=15, detailed=FALSE) {

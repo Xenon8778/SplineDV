@@ -28,9 +28,9 @@ Differential Variability analysis
 \examples{
 # example code
 # Load Data
-load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-load(system.file("extdata", "KO_count.rda", package="SplineDV")) # KO Sample
-DV_res <- splineDV(X=KO_count, Y=WT_count)
+WTcount <- SplineDV::WTcount # WT Sample
+KOcount <- SplineDV::KOcount # KO Sample
+DVres <- splineDV(X=KOcount, Y=WTcount)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

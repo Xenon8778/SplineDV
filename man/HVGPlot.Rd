@@ -26,8 +26,8 @@ Plots 3D scatter plot with HVGs or target gene highlighted
 \examples{
 # example code
 ## Load Data
-load(system.file("extdata", "WT_count.rda", package="SplineDV")) # WT Sample
-hvgDF <- splineHVG(WT_count)
+WTcount <- SplineDV::WTcount # WT Sample
+hvgDF <- splineHVG(WTcount)
 fig <- HVGPlot(hvgDF)
 print(fig)
 }
