@@ -13,8 +13,8 @@ BiocManager::install("Xenon8778/SplineDV")
 ```
 ## Developer version 
 ```R
-if (!require("devtools")) install.packages("devtools")
-devtools::install_github("Xenon8778/SplineDV")
+if (!require("devtools")) install.packages("remotes")
+remotes::install_github("Xenon8778/SplineDV")
 ```
 
 # Loading Input
