@@ -13,7 +13,7 @@ BiocManager::install("Xenon8778/SplineDV")
 ```
 ## Developer version 
 ```R
-if (!require("devtools")) install.packages("remotes")
+if (!require("remotes")) install.packages("remotes")
 remotes::install_github("Xenon8778/SplineDV")
 ```
 
