@@ -17,20 +17,24 @@ splineDV(X, Y, ncounts = 500, ncells = 15, mtPerc = 15, detailed = FALSE)
 
 \item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 
-\item{detailed}{A boolean value. Defines whether to add individual splineHVG data.frame to the output.}
+\item{detailed}{A boolean value. Defines whether to add individual splineHVG DataFrame to the output.}
 }
 \value{
-A data.frame with DV Statistics
+A DataFrame with DV Statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline for each sample. The distance across conditions is stored in "vectorDist". P values are computed assuming normal distribution of distance differences.
 }
 \description{
-Differential Variability analysis
+Differential Variability (DV) analysis. 3 gene statistics are used - Mean, CV and Dropout rate of each gene. A smooth.spline is modeled using these statistics. First, the distance vectors of each gene from spline is computed using the splineHVG function for each condition. Then the vector distance between the distance vectors are computed. A high
 }
 \examples{
 # example code
-# Load Data
-WTcount <- SplineDV::WTcount # WT Sample
-KOcount <- SplineDV::KOcount # KO Sample
-DVres <- splineDV(X=KOcount, Y=WTcount)
+## Generate example count data
+X <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+rownames(X) <- paste0('g', as.character(1:2000))
+Y <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+rownames(Y) <- paste0('g', as.character(1:2000))
+
+## Run splineDV
+res <- splineDV(X, Y)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

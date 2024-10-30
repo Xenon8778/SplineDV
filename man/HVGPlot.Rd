@@ -7,7 +7,7 @@
 HVGPlot(df, targetgene = NULL, ptSize = 3, lwd = 5, dlwd = 7)
 }
 \arguments{
-\item{df}{Resultant data.frame after splineHVG analysis}
+\item{df}{Resultant DataFrame after splineHVG analysis}
 
 \item{targetgene}{An integer value. Defines the minimum reads required for a cell to be included in the analysis.}
 
@@ -18,18 +18,20 @@ HVGPlot(df, targetgene = NULL, ptSize = 3, lwd = 5, dlwd = 7)
 \item{dlwd}{An integer value. Defines Line width for target gene distance.}
 }
 \value{
-3D plotly scatter plot
+3D plotly scatter plot.
 }
 \description{
-Plots 3D scatter plot with HVGs or target gene highlighted
+Plots 3D scatter plot with HVGs or target gene(s) highlighted. The 3D spline represents the estimated expected behavior of genes in the sample.
 }
 \examples{
 # example code
-## Load Data
-WTcount <- SplineDV::WTcount # WT Sample
-hvgDF <- splineHVG(WTcount)
-fig <- HVGPlot(hvgDF)
-print(fig)
+## Generate example count data
+X <- abs(matrix(round(rpois(2000*500, lambda=0.5),0), nrow=2000, ncol=500))
+rownames(X) <- paste0('g', as.character(1:2000))
+
+## Run splineHVG
+res <- splineHVG(X)
+fig <- HVGPlot(res)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

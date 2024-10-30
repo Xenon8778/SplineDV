@@ -7,7 +7,7 @@
 DVPlot(df, targetgene = NULL, ptSize = 3, lwd = 5, dlwd = 7)
 }
 \arguments{
-\item{df}{Resultant data.frame after splineDV analysis}
+\item{df}{Resultant DataFrame after splineDV analysis}
 
 \item{targetgene}{An integer value. Defines the minimum reads required for a cell to be included in the analysis.}
 
@@ -21,16 +21,19 @@ DVPlot(df, targetgene = NULL, ptSize = 3, lwd = 5, dlwd = 7)
 3D plotly scatter plot
 }
 \description{
-Plots 3D gene statistic scatter plot of target genes in twop conditions
+Plots 3D gene statistic scatter plot of target genes in two conditions.
 }
 \examples{
 # example code
-## Load Data
-WTcount <- SplineDV::WTcount # WT Sample
-KOcount <- SplineDV::KOcount # KO Sample
-DVres <- splineDV(X=KOcount, Y=WTcount)
-fig <- DVPlot(DVres)
-print(fig)
+## Generate example count data
+X <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+rownames(X) <- paste0('g', as.character(1:2000))
+Y <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+rownames(Y) <- paste0('g', as.character(1:2000))
+
+## Run splineDV
+res <- splineDV(X, Y)
+fig <- DVPlot(res)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>

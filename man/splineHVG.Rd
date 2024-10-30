@@ -10,8 +10,7 @@ splineHVG(
   ncounts = 500,
   ncells = 15,
   mtPerc = 15,
-  degf = 15,
-  spar = 0.75,
+  spar = 0.3,
   nHVGs = 2000,
   use.ndist = TRUE
 )
@@ -27,8 +26,6 @@ splineHVG(
 
 \item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 
-\item{degf}{An integer value. Degrees of freedom for the Spline.}
-
 \item{spar}{A double value. Smoothing parameter for Spline}
 
 \item{nHVGs}{An integer value. Number of top Highly Variable Genes (HVGs) to select.}
@@ -36,16 +33,19 @@ splineHVG(
 \item{use.ndist}{A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.}
 }
 \value{
-A data.frame with HVG selection Statistics
+A DataFrame with highly variable gene selection statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline. A higher distance signifies higher variability.
 }
 \description{
-Compute Highly Variable Genes from an scRNAseq expression data.
+Compute Highly Variable Genes from an scRNAseq expression data. Uses 3 gene statstics - Mean, CV and Dropout rate to model a 3D spline to estimate the expected behavior of genes. A gene is considered highly variable if the actual gene expression is far from the estimated 3D spline.
 }
 \examples{
 # example code
-## Load Data
-WTcount <- SplineDV::WTcount # WT Sample
-HVG_res <- splineHVG(WTcount, nHVGs = 100)
+## Generate example count data
+X <- abs(matrix(round(rpois(2000*500, lambda=0.5),0), nrow=2000, ncol=500))
+rownames(X) <- paste0('g', as.character(1:2000))
+
+## Run splineHVG
+res <- splineHVG(X)
 }
 \author{
 Shreyan Gupta <xenon8778@tamu.edu>
