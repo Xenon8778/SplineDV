@@ -1,35 +1,39 @@
 #' @title Spline-HVG
-#' @description Compute Highly Variable Genes from an scRNAseq expression data.
+#' @description Compute Highly Variable Genes from an scRNAseq expression data. Uses 3 gene statstics - Mean, CV and Dropout rate to model a 3D spline to estimate the expected behavior of genes. A gene is considered highly variable if the actual gene expression is far from the estimated 3D spline.
 #' @export splineHVG
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import dplyr
 #' @import SingleCellExperiment
 #' @import SummarizedExperiment
+#' @importFrom S4Vectors DataFrame
+#' @importFrom BiocGenerics t
 #' @importFrom sparseMatrixStats rowSds
 #' @importFrom Matrix rowSums rowMeans
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom Biobase matchpt
-#' @importFrom stats smooth.spline predict
+#' @importFrom stats smooth.spline predict p.adjust
 #' @importFrom methods as is
-#' @return A data.frame with HVG selection Statistics
+#' @return A DataFrame with highly variable gene selection statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline. A higher distance signifies higher variability.
 #' @param X Count matrix or SingleCellExperiment
 #' @param QC A Boolean value (TRUE/FALSE), if TRUE, a quality control is applied over the data.
 #' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
-#' @param degf An integer value. Degrees of freedom for the Spline.
 #' @param spar A double value. Smoothing parameter for Spline
 #' @param nHVGs An integer value. Number of top Highly Variable Genes (HVGs) to select.
 #' @param use.ndist A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.
 #' @examples
 #' # example code
-#' ## Load Data
-#' WTcount <- SplineDV::WTcount # WT Sample
-#' HVG_res <- splineHVG(WTcount, nHVGs = 100)
+#' ## Generate example count data
+#' X <- abs(matrix(round(rpois(2000*500, lambda=0.5),0), nrow=2000, ncol=500))
+#' rownames(X) <- paste0('g', as.character(1:2000))
+#'
+#' ## Run splineHVG
+#' res <- splineHVG(X)
 
 splineHVG <- function(X, QC=TRUE,
                           ncounts=500, ncells=15, mtPerc=15,
-                          degf=15, spar=0.75, nHVGs=2000, use.ndist=TRUE){
+                          spar=0.3, nHVGs=2000, use.ndist=TRUE){
 
   # Check if object is SingleCellExperiment
   if (is(X,"SingleCellExperiment")){
@@ -47,7 +51,7 @@ splineHVG <- function(X, QC=TRUE,
   if (QC == TRUE){
     adata <- hvgQC(adata, ncounts=ncounts, ncells=ncells,
                    mtPerc=mtPerc)
-    message('QC Done')
+    message('QC done')
   }
 
   # Checking if object has enough genes
@@ -55,21 +59,25 @@ splineHVG <- function(X, QC=TRUE,
     stop('Sample has too few genes')
   }
 
+  countData <- SummarizedExperiment::assay(adata, 'counts')
+
   # Normalizing
-  SummarizedExperiment::assay(adata, 'data') <- t(t(SummarizedExperiment::assay(adata, 'counts')) / colSums(SummarizedExperiment::assay(adata, 'counts'))) * mean(colSums(SummarizedExperiment::assay(adata, 'counts')), na.rm=TRUE)
+  message('Performing normalization...')
+  NormData <- BiocGenerics::t(BiocGenerics::t(countData) / Matrix::colSums(countData)) *
+    mean(Matrix::colSums(countData), na.rm=TRUE)
 
   ## Highly Variable Genes
-  Dropout <- rowSums(SummarizedExperiment::assay(adata, 'counts') == 0)
+  Dropout <- rowSums(countData == 0)
   Dropout <- Dropout / ncol(adata)
-  Means <- rowMeans(SummarizedExperiment::assay(adata, 'data'))
-  SDs <- rowSds(SummarizedExperiment::assay(adata, 'data'))
+  Means <- rowMeans(NormData)
+  SDs <- rowSds(NormData)
   CV <- SDs / Means
   splinefitDF <- as.data.frame(Means)
   splinefitDF$CV <- CV
   splinefitDF$Dropout <- Dropout
   splinefitDF$logMean <- log(Means+1)
   splinefitDF$logCV <- log(CV+1)
-  splinefitDF <- splinefitDF %>% arrange(logMean) # arrange by Mean expression
+  splinefitDF <- splinefitDF %>% arrange(logMean,logCV,Dropout) # arrange by Mean expression
   # splinefitDF <- splinefitDF %>% filter(Dropout>0.01 & Dropout<0.99) # Trimming ends
 
   # Calculate the differences and the squared differences between consecutive elements
@@ -78,13 +86,14 @@ splineHVG <- function(X, QC=TRUE,
   diffDropr <- diff(splinefitDF$Dropout)
   diffSquaredSum <- diffLgu^2 + diffLgcv^2 + diffDropr^2
 
+  message('Computing distances...')
   # Calculate the cumulative sum
   s <- c(0, cumsum(sqrt(diffSquaredSum)))
   xyz <- splinefitDF %>% dplyr::select(logMean,logCV,Dropout)
 
-  fitx <- smooth.spline(s, splinefitDF$logMean, df=degf, spar=spar)
-  fity <- smooth.spline(s, splinefitDF$logCV, df=degf, spar=spar)
-  fitz <- smooth.spline(s, splinefitDF$Dropout, df=degf, spar=spar)
+  fitx <- smooth.spline(s, splinefitDF$logMean, spar=spar)
+  fity <- smooth.spline(s, splinefitDF$logCV, spar=spar)
+  fitz <- smooth.spline(s, splinefitDF$Dropout, spar=spar)
 
   # Computing Distances
   xyz1 <- cbind(predict(fitx,s)$y, predict(fity,s)$y, predict(fitz,s)$y)
@@ -128,17 +137,22 @@ splineHVG <- function(X, QC=TRUE,
 
   # Removing Genes with too high or low dropout
   splinefitDF$Distance[splinefitDF$Dropout > 0.95 | splinefitDF$Dropout < 0.01] <- 0
-  topHVG <- splinefitDF %>% top_n(n=nHVGs, wt=Distance)
-  mask <- rownames(splinefitDF) %in% rownames(topHVG)
-  splinefitDF$HVG <- mask
-  splinefitDF <- splinefitDF %>% arrange(Dropout)
 
   # Trimming genes at the ends of spline
   if (use.ndist){
-    splinefitDF <- splinefitDF %>% filter(nearidx != 1 & nearidx != max(nearidx))
+    #splinefitDF <- splinefitDF %>% filter(nearidx != 1 & nearidx != max(nearidx))
+    splinefitDF[(splinefitDF$nearidx == 1 &
+                   splinefitDF$nearidx == max(splinefitDF$nearidx)),] = 0
   }
-  splinefitDF <- splinefitDF %>% arrange(-Distance)
 
+  topHVG <- splinefitDF %>% top_n(n=nHVGs, wt=Distance)
+  mask <- rownames(splinefitDF) %in% rownames(topHVG)
+  splinefitDF$HVG <- mask
+
+  splinefitDF <- splinefitDF %>% arrange(-Distance)
+  splinefitDF <- DataFrame(splinefitDF)
+
+  message('HVG computed')
   return(splinefitDF)
 }
 
@@ -146,21 +160,24 @@ splineHVG <- function(X, QC=TRUE,
 #' @export hvgQC
 #' @title Quality control
 #' @importFrom Matrix rowSums
-#' @description QC filter scRNA-seq expression data
+#' @description QC filter scRNA-seq expression data. Removes lowly expressed genes and cells. Also removes cells with high mitochondrial gene expression.
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import scuttle
 #' @import SummarizedExperiment
 #' @import SingleCellExperiment
-#' @return QC filtered SingleCellExperiment
-#' @param X Count matrix or SingleCellExperiment
+#' @return QC filtered SingleCellExperiment.
+#' @param X Count matrix or SingleCellExperiment.
 #' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @examples
 #' # example code
-#' ## Load Data
-#' WTcount <- SplineDV::WTcount # WT Sample
-#' adata = hvgQC(WTcount)
+#' ## Generate example count data
+#' X <- abs(matrix(round(rpois(2000*500, lambda=0.5),0), nrow=2000, ncol=500))
+#' rownames(X) <- paste0('g', as.character(1:2000))
+#'
+#' ## Run splineHVG
+#' QCres <- hvgQC(X)
 
 hvgQC <- function(X, ncounts=1000, ncells=15, mtPerc=15){
 
@@ -194,25 +211,30 @@ hvgQC <- function(X, ncounts=1000, ncells=15, mtPerc=15){
 
 #' @export HVGPlot
 #' @title Plot HVG 3D scatter plot
-#' @description Plots 3D scatter plot with HVGs or target gene highlighted
+#' @description Plots 3D scatter plot with HVGs or target gene(s) highlighted. The 3D spline represents the estimated expected behavior of genes in the sample.
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import plotly
 #' @import dplyr
-#' @return 3D plotly scatter plot
-#' @param df Resultant data.frame after splineHVG analysis
+#' @return 3D plotly scatter plot.
+#' @param df Resultant DataFrame after splineHVG analysis
 #' @param targetgene An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param lwd An integer value. Defines line width for spline.
 #' @param ptSize An integer value. Defines point size for dots
 #' @param dlwd An integer value. Defines Line width for target gene distance.
 #' @examples
 #' # example code
-#' ## Load Data
-#' WTcount <- SplineDV::WTcount # WT Sample
-#' hvgDF <- splineHVG(WTcount)
-#' fig <- HVGPlot(hvgDF)
-#' print(fig)
+#' ## Generate example count data
+#' X <- abs(matrix(round(rpois(2000*500, lambda=0.5),0), nrow=2000, ncol=500))
+#' rownames(X) <- paste0('g', as.character(1:2000))
+#'
+#' ## Run splineHVG
+#' res <- splineHVG(X)
+#' fig <- HVGPlot(res)
 
 HVGPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
+  if (!is(df,'data.frame')){
+    df <- data.frame(df)
+  }
   df$genenames <- rownames(df)
   if(is.null(targetgene)){
     fig <- plot_ly(df, x=~logMean, y=~logCV, z=~Dropout,
@@ -253,26 +275,32 @@ HVGPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 
 #' @export DVPlot
 #' @title Plot 3D scatter plot in two conditions
-#' @description Plots 3D gene statistic scatter plot of target genes in twop conditions
+#' @description Plots 3D gene statistic scatter plot of target genes in two conditions.
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import plotly
 #' @import dplyr
 #' @return 3D plotly scatter plot
-#' @param df Resultant data.frame after splineDV analysis
+#' @param df Resultant DataFrame after splineDV analysis
 #' @param targetgene An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param lwd An integer value. Defines line width for spline.
 #' @param ptSize An integer value. Defines point size for dots
 #' @param dlwd An integer value. Defines Line width for target gene distance.
 #' @examples
 #' # example code
-#' ## Load Data
-#' WTcount <- SplineDV::WTcount # WT Sample
-#' KOcount <- SplineDV::KOcount # KO Sample
-#' DVres <- splineDV(X=KOcount, Y=WTcount)
-#' fig <- DVPlot(DVres)
-#' print(fig)
+#' ## Generate example count data
+#' X <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+#' rownames(X) <- paste0('g', as.character(1:2000))
+#' Y <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+#' rownames(Y) <- paste0('g', as.character(1:2000))
+#'
+#' ## Run splineDV
+#' res <- splineDV(X, Y)
+#' fig <- DVPlot(res)
 
 DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
+  if (!is(df,'data.frame')){
+    df <- data.frame(df)
+  }
   if(isFALSE(targetgene %in% df$gene)){
     stop('Gene not in analysis!')
   }
@@ -293,26 +321,28 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 
   fig <- plot_ly(df %>% arrange(mu1), type="scatter3d", mode='markers') %>%
     add_trace(data = df %>% arrange(mu1),x=~X_splinex, y=~X_spliney, z=~X_splinez,
-              mode='lines',
+              mode='lines', name = 'Test',
               line=list(width=lwd, color='firebrick', opacity=1, reverscale=FALSE)) %>%
     add_trace(data = df %>% arrange(mu2),x=~Y_splinex, y=~Y_spliney, z=~Y_splinez,
-              mode='lines',
+              mode='lines', name = 'Control',
               line=list(width=lwd, color='steelblue', opacity=1, reverscale=FALSE)) %>%
     add_trace(data = dfSubX, x=~logMean, y=~logCV, z=~Dropout,
-              mode='lines+markers',
+              mode='lines+markers', showlegend = FALSE,
               opacity=1, text=dfSub$genes,
               marker=list(size=ptSize, color='firebrick', reverscale=FALSE),
               line=list(width=dlwd, color='firebrick')) %>%
     add_trace(data = dfSubY, x=~logMean, y=~logCV, z=~Dropout,
-              mode='lines+markers',
+              mode='lines+markers', showlegend = FALSE,
               opacity=1, text=dfSub$genes,
               marker=list(size=ptSize, color='steelblue', reverscale=FALSE),
               line=list(width=dlwd, color='steelblue')) %>%
     add_text(data = dfSubX['end',], x=~logMean, y=~logCV, z=~Dropout,
-             mode='text', opacity=1, text=dfSub$genes, inherit=FALSE) %>%
+             mode='text', opacity=1, text=dfSub$genes, inherit=FALSE,
+             showlegend = FALSE) %>%
     add_text(data = dfSubY['end',], x=~logMean, y=~logCV, z=~Dropout,
-             mode='text', opacity=1, text=dfSub$genes, inherit=FALSE) %>%
-    layout(showlegend = FALSE,
+             mode='text', opacity=1, text=dfSub$genes, inherit=FALSE,
+             showlegend = FALSE) %>%
+    layout(showlegend = TRUE,
            scene=list(xaxis = list(title = 'logMean'),
                       yaxis=list(title = 'logCV'),
                       zaxis=list(title = 'Dropout'),
@@ -324,23 +354,28 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 
 #' @export splineDV
 #' @title Spline-DV
-#' @description Differential Variability analysis
+#' @description Differential Variability (DV) analysis. 3 gene statistics are used - Mean, CV and Dropout rate of each gene. A smooth.spline is modeled using these statistics. First, the distance vectors of each gene from spline is computed using the splineHVG function for each condition. Then the vector distance between the distance vectors are computed. A high
 #' @author Shreyan Gupta <xenon8778@tamu.edu>
 #' @import dplyr
+#' @importFrom S4Vectors DataFrame
 #' @importFrom stats pnorm
-#' @return A data.frame with DV Statistics
+#' @return A DataFrame with DV Statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline for each sample. The distance across conditions is stored in "vectorDist". P values are computed assuming normal distribution of distance differences.
 #' @param X Count matrix or SingleCellExperiment (Test sample)
 #' @param Y Count matrix or SingleCellExperiment (Control sample)
 #' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
-#' @param detailed A boolean value. Defines whether to add individual splineHVG data.frame to the output.
+#' @param detailed A boolean value. Defines whether to add individual splineHVG DataFrame to the output.
 #' @examples
 #' # example code
-#' # Load Data
-#' WTcount <- SplineDV::WTcount # WT Sample
-#' KOcount <- SplineDV::KOcount # KO Sample
-#' DVres <- splineDV(X=KOcount, Y=WTcount)
+#' ## Generate example count data
+#' X <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+#' rownames(X) <- paste0('g', as.character(1:2000))
+#' Y <- abs(matrix(round(rpois(2000*500, lambda=0.5), 0), nrow=2000, ncol=500))
+#' rownames(Y) <- paste0('g', as.character(1:2000))
+#'
+#' ## Run splineDV
+#' res <- splineDV(X, Y)
 
 splineDV <- function(X, Y, ncounts=500, ncells=15,
                          mtPerc=15, detailed=FALSE) {
@@ -404,12 +439,16 @@ splineDV <- function(X, Y, ncounts=500, ncells=15,
     mutate('Direction'=sign(dist1 - dist2)) %>%
     mutate('Z'= as.numeric(scale(vectorDist))) %>%
     mutate('Pval' = 2*pnorm(abs(Z), lower.tail = FALSE)) %>%
-    arrange(Pval)
+    mutate('FDR' = p.adjust(Pval, 'BH')) %>%
+    arrange(FDR)
 
   resOut <- DVres %>% select(genes, mu1, mu2, CV1, CV2, drop1, drop2,
-                               dist1, dist2, X_splinex, X_spliney, X_splinez,
-                               Y_splinex, Y_spliney, Y_splinez,
-                              vectorDist, Direction, Pval) %>% as.data.frame()
+                             dist1, dist2, X_splinex, X_spliney, X_splinez,
+                             Y_splinex, Y_spliney, Y_splinez,
+                             vectorDist, Direction, Pval,FDR) %>%
+    as.data.frame()
+  resOut <- DataFrame(resOut)
+
   output <- list(HVG_X=res_X, HVG_Y=res_Y, DV=resOut)
   if(detailed){
     resOut <- output

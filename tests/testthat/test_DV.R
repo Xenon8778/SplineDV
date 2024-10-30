@@ -4,6 +4,6 @@ test_that("DV works with matrix",{
   Y <- abs(matrix(round(rnorm(2000*500,0,10),0), nrow=2000, ncol=500))
   rownames(Y) <- paste0('g', as.character(1:2000))
   res <- splineDV(X, Y)
-  expect_s3_class(res, "data.frame")
-  expect_identical(ncol(res), 18L)
+  expect_s4_class(res, "DataFrame")
+  expect_identical(ncol(res), 19L)
 })
