@@ -50,7 +50,7 @@ BiocManager::install("Xenon8778/SplineDV")
 
 For this vignette, we'll use SplineDV in conjunction with the scRNAseq package. While standard data preprocessing can be applied beforehand, the package itself handles quality control internally, requiring only a raw count matrix as input.
 
-```{r}
+```{r Importlibraries, message=FALSE}
 library(scRNAseq)
 library(SplineDV)
 ```
@@ -61,9 +61,13 @@ library(SplineDV)
 
 Spline-DV is designed to compare expression variability between two experimental conditions. To illustrate this, we'll utilize a publicly available mouse lung single-cell RNA-seq dataset from the scRNAseq Bioconductor package by Zilionis et al. [1]. This dataset includes tumor-infiltrating myeloid cells from both tumor and healthy conditions.
 
-```{r loadingExampleData, message=FALSE}
+```{r LoadingExampleData}
 sce <- fetchDataset('zilionis-lung-2019','2023-12-20', path="mouse")
 sce
+```
+Let us see the number of cells per condition and and the available cell types in the scRNA-seq dataset.
+```{r MajorCellTypes}
+table(sce$`Major cell type`,sce$`Tissue`)
 ```
 
 The expression matrix should be formatted with the genes/features as rows and cells as columns. The two input matrices for splineDV must be stored as two separate count expression matrices or SingleCellExperiment objects. We can isolate the two experimental conditions. To focus solely on changes within a specific cell type and eliminate potential variability arising from shifts in cell type distribution, we select only Neutrophils for further analysis.
@@ -112,22 +116,15 @@ Next, we'll introduce the Spline HVG algorithm, a feature selection technique de
 ## Input - scRNA-seq Expression matrix
 
 ```{r loadHVGExampleData}
-# Load data
-sce <- fetchDataset('zilionis-lung-2019','2023-12-20', path="mouse")
-
-# Extract Healthy data
-healthyCount <- sce[, sce$Tissue == "healthy"]
-
-# Select a specific cell type - Neutrophils
-healthyCount <- healthyCount[, which(healthyCount$`Major cell type` == "Neutrophils")]
+# Healthy neutrophils data
 print(healthyCount)
 ```
 
 ## Running Spline-HVG
 
-The expression matrix should be formatted with the genes/features as rows and cells as columns. The input matrix for `splineHVG` must be stored as a count expression matrices or SingleCellExperiment objects. To focus solely on changes within a specific cell type and eliminate potential variability arising from shifts in cell type distribution, we select only Neutrophils for further analysis. Smaller QC parameters can be used for the small data sets (e.g., cells \< 500 and genes \< 5000) to preserve enough cells and genes for splineHVG analysis. However, **we recommend using the default QC parameters for large data sets**, if not more stringent.
+The expression matrix should be formatted with the genes/features as rows and cells as columns. The input matrix for `splineHVG` must be stored as a count expression matrices or SingleCellExperiment objects. To focus solely on changes within a specific cell type and eliminate potential variability arising from shifts in cell type distribution, we select only Neutrophils for further analysis. Smaller QC parameters can be used for the small data sets (e.g., cells < 500 and genes < 5000) to preserve enough cells and genes for splineHVG analysis. However, **we recommend using the default QC parameters for large data sets**, if not more stringent.
 
-```{r runSplineHVG, results='hide'}
+```{r runSplineHVG}
 HVGRes <- splineHVG(healthyCount, nHVGs = 200)
 head(HVGRes)
 ```

@@ -19,7 +19,7 @@
 #' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
-#' @param spar A double value. Smoothing parameter for Spline
+#' @param spar A double value. Smoothing parameter for Spline.
 #' @param nHVGs An integer value. Number of top Highly Variable Genes (HVGs) to select.
 #' @param use.ndist A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.
 #' @examples
@@ -32,8 +32,8 @@
 #' res <- splineHVG(X)
 
 splineHVG <- function(X, QC=TRUE,
-                          ncounts=500, ncells=15, mtPerc=15,
-                          spar=0.3, nHVGs=2000, use.ndist=TRUE){
+                          ncounts=1000, ncells=15, mtPerc=15,
+                          spar=0.5, nHVGs=2000, use.ndist=TRUE){
 
   # Check if object is SingleCellExperiment
   if (is(X,"SingleCellExperiment")){
@@ -145,7 +145,8 @@ splineHVG <- function(X, QC=TRUE,
                    splinefitDF$nearidx == max(splinefitDF$nearidx)),] = 0
   }
 
-  topHVG <- splinefitDF %>% top_n(n=nHVGs, wt=Distance)
+  topHVG <- splinefitDF %>% filter(logCV >= spliney) %>%
+    top_n(n=nHVGs, wt=Distance)
   mask <- rownames(splinefitDF) %in% rownames(topHVG)
   splinefitDF$HVG <- mask
 
@@ -364,6 +365,7 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' @param Y Count matrix or SingleCellExperiment (Control sample)
 #' @param ncounts An integer value. Defines the minimum reads required for a cell to be included in the analysis.
 #' @param ncells An integer value. Defines the minimum cells required for a gene to be included in the analysis.
+#' @param spar A double value. Smoothing parameter for Spline.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @param detailed A boolean value. Defines whether to add individual splineHVG DataFrame to the output.
 #' @examples
@@ -377,7 +379,7 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' ## Run splineDV
 #' res <- splineDV(X, Y)
 
-splineDV <- function(X, Y, ncounts=500, ncells=15,
+splineDV <- function(X, Y, ncounts=1000, ncells=15, spar=0.5,
                          mtPerc=15, detailed=FALSE) {
 
   # QC Filtering
@@ -393,9 +395,9 @@ splineDV <- function(X, Y, ncounts=500, ncells=15,
 
   # Computing distances
   message('Computing distances for Data 1')
-  res_X <- splineHVG(X, QC = FALSE)
+  res_X <- splineHVG(X, QC = FALSE, spar = spar)
   message('Computing distances for Data 2')
-  res_Y <- splineHVG(Y, QC = FALSE)
+  res_Y <- splineHVG(Y, QC = FALSE, spar = spar)
 
   # Intersect gene space of the two data sets
   feat <- intersect(rownames(res_X),rownames(res_Y))

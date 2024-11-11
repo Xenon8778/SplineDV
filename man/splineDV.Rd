@@ -4,7 +4,15 @@
 \alias{splineDV}
 \title{Spline-DV}
 \usage{
-splineDV(X, Y, ncounts = 500, ncells = 15, mtPerc = 15, detailed = FALSE)
+splineDV(
+  X,
+  Y,
+  ncounts = 1000,
+  ncells = 15,
+  spar = 0.5,
+  mtPerc = 15,
+  detailed = FALSE
+)
 }
 \arguments{
 \item{X}{Count matrix or SingleCellExperiment (Test sample)}
@@ -14,6 +22,8 @@ splineDV(X, Y, ncounts = 500, ncells = 15, mtPerc = 15, detailed = FALSE)
 \item{ncounts}{An integer value. Defines the minimum reads required for a cell to be included in the analysis.}
 
 \item{ncells}{An integer value. Defines the minimum cells required for a gene to be included in the analysis.}
+
+\item{spar}{A double value. Smoothing parameter for Spline.}
 
 \item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 

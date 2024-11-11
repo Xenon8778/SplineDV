@@ -7,10 +7,10 @@
 splineHVG(
   X,
   QC = TRUE,
-  ncounts = 500,
+  ncounts = 1000,
   ncells = 15,
   mtPerc = 15,
-  spar = 0.3,
+  spar = 0.5,
   nHVGs = 2000,
   use.ndist = TRUE
 )
@@ -26,7 +26,7 @@ splineHVG(
 
 \item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 
-\item{spar}{A double value. Smoothing parameter for Spline}
+\item{spar}{A double value. Smoothing parameter for Spline.}
 
 \item{nHVGs}{An integer value. Number of top Highly Variable Genes (HVGs) to select.}
 
