@@ -1,5 +1,9 @@
 # *News*
 
+# SplineDV v1.0.0 (18/09/2024)
+==============
+First Stable Release
+
 # SplineDV v0.99.4 (18/09/2024)
 ==============
 Initial Submission
