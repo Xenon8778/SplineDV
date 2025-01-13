@@ -1,8 +1,8 @@
 # *News*
 
-# SplineDV v1.0.0 (18/09/2024)
+# SplineDV v0.9.12 (18/09/2024)
 ==============
-First Stable Release
+**Bioconductor** Accepted
 
 # SplineDV v0.99.4 (18/09/2024)
 ==============
