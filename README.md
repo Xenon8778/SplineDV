@@ -134,7 +134,7 @@ head(DV_res)
 ```
 ## Visualize Gene Expression statistics
 ```R
-DVPlot(DV_res)
+DVPlot(DV_res, targetgene='Ager')
 ```
 ![image](https://github.com/user-attachments/assets/4d17a58b-5ce0-4ad4-a65f-f7b7b01f3ebf)
 
