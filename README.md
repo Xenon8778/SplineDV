@@ -21,7 +21,94 @@ remotes::install_github("Xenon8778/SplineDV")
 The expression matrix should be formatted with the genes/features as rows and cells as columns.
 The two input matrices for DV_splinefit must be stored as two separate count expression matrices or SingleCellExperiment objects.
 
-## Loading .h5 files
+# Tutorial
+### Input - scRNA-seq expression matrix from two condtions
+
+Spline-DV is designed to compare expression variability between two experimental conditions. To illustrate this, we'll utilize a publicly available mouse lung single-cell RNA-seq dataset from the scRNAseq Bioconductor package by Zilionis et al. [1]. This dataset includes tumor-infiltrating myeloid cells from both tumor and healthy conditions.
+
+```{r LoadingExampleData}
+sce <- fetchDataset('zilionis-lung-2019','2023-12-20', path="mouse")
+sce
+```
+Let us see the number of cells per condition and and the available cell types in the scRNA-seq dataset.
+```{r MajorCellTypes}
+table(sce$`Major cell type`,sce$`Tissue`)
+```
+
+The expression matrix should be formatted with the genes/features as rows and cells as columns. The two input matrices for splineDV must be stored as two separate count expression matrices or SingleCellExperiment objects. We can isolate the two experimental conditions. To focus solely on changes within a specific cell type and eliminate potential variability arising from shifts in cell type distribution, we select only Neutrophils for further analysis.
+
+```{r SplittingExperimentalConditions}
+# Extract Healthy data
+healthyCount <- sce[, sce$Tissue == "healthy"]
+
+# Extract Tumor data
+tumorCount <- sce[, sce$Tissue == "tumor"]
+
+# Select a specific cell type - Neutrophils
+healthyCount <- healthyCount[, which(healthyCount$`Major cell type` == "Neutrophils")]
+print(healthyCount)
+
+tumorCount <- tumorCount[, which(tumorCount$`Major cell type` == "Neutrophils")]
+print(tumorCount)
+```
+
+Given our isolation of a single cell type, any observed changes in gene expression variability should be attributed to experimental factors. To mitigate the potential impact of background distribution shifts caused by varying cell type and state proportions, we recommend conducting Spline-DV analysis in a cell state/type-specific manner.
+
+### Running Spline-DV
+
+The main function of SplineDV ios the splineDV function. For the analysis, the test data (X) is always use in contrast with the control data (Y). We use smaller QC parameters for the small example data sets to preserve enough cells and genes. **We recommend using the default QC parameters for large data sets.**
+
+```{r runSplineDV}
+dvRes <- splineDV(X = tumorCount, Y = healthyCount)
+head(dvRes)
+```
+The output is a DataFrame containing statistical measures for each gene in the differential variability (DV) analysis. Genes with large vectorDist values exhibit substantial changes in expression variability between the two experimental conditions. Genes with FDR values below 0.05 are considered significantly differentially variable. The Direction column indicates whether the variability increased or decreased. By leveraging this information, we can identify biologically relevant genes that not only demonstrate shifts in mean expression but also alterations in expression variability across conditions.
+
+### Visualize Gene Expression statistics
+
+To visualize the differential variability of genes, we can employ a 3D scatter plot. The `DVPlot` function allows us to visualize the computed spline for each condition, represented by a distinct color, along with the distance vectors of genes from their respective spline. This plot provides a clear representation of the shift in expression variability between the two conditions.
+
+```{r plotDV, out.width="75%", out.height="75%", fig.format='png'}
+fig <- DVPlot(dvRes, targetgene='Spp1')
+fig 
+```
+## Highly Variable Genes (HVGs) using Spline-HVG
+
+Next, we'll introduce the Spline HVG algorithm, a feature selection technique designed to identify Highly Variable Genes (HVGs) in scRNA-seq data. This algorithm computes the distance from the spline to identify genes with significant variability. To demonstrate this, we'll utilize the same sample dataset of healthy neutrophils from mice lungs used in the previous section.
+
+
+### Input - scRNA-seq Expression matrix
+
+```{r loadHVGExampleData}
+# Healthy neutrophils data
+print(healthyCount)
+```
+
+### Running Spline-HVG
+
+The expression matrix should be formatted with the genes/features as rows and cells as columns. The input matrix for `splineHVG` must be stored as a count expression matrices or SingleCellExperiment objects. To focus solely on changes within a specific cell type and eliminate potential variability arising from shifts in cell type distribution, we select only Neutrophils for further analysis. Smaller QC parameters can be used for the small data sets (e.g., cells < 500 and genes < 5000) to preserve enough cells and genes for splineHVG analysis. However, **we recommend using the default QC parameters for large data sets**, if not more stringent.
+```{r runSplineHVG}
+HVGRes <- splineHVG(healthyCount, nHVGs = 200)
+head(HVGRes)
+```
+The output is a DataFrame containing statistical measures for each gene in the Spline HVG analysis. Genes with large Distance values exhibit significant deviation from expected behavior, as represented by the 3D spline. The top n HVGs can be identified by sorting the DataFrame by Distance in descending order. These highly variable genes, which are biologically relevant, can be utilized in various downstream analyses, such as for dimensional reduction and PCA.
+
+```{r showHVGList}
+# Extracting HVG Gene list
+HVGList <- rownames(HVGRes)[HVGRes$HVG == TRUE]
+head(HVGList)
+```
+
+### Visualize Highly Variable Genes
+
+To visualize the highly variable genes, we can employ a 3D scatter plot. The `HVGPlot` function allows us to visualize the computed spline, which represents the expected gene behavior. Each dot on the plot represents a single gene. This plot provides a clear representation of HVGs (highlighted in red), which deviate significantly from the 3D spline, indicating a substantial shift in their gene expression.
+
+```{r plotHVG, out.width="75%", out.height="75%"}
+fig <- HVGPlot(HVGRes)
+fig
+```
+
+# Loading .h5 files
 Reading 10X .h5 files as SingleCellExperiment objects using the [DropletUtils](https://bioconductor.org/packages/release/bioc/html/DropletUtils.html) package
 ```{r loadingSingleExprMat2, eval=FALSE}
 # Reading a 10X .h5 file
@@ -32,61 +119,27 @@ exprMatrix_1 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_1.
 exprMatrix_2 <- DropletUtils::read10xCounts(samples = 'mySingleCellExperiment_2.h5', type = 'HDF5')
 ```
 
-## Loading Seurat files
-Reading .rds files generated using the [Seurat](https://satijalab.org/seurat/) package
+# Working with Seurat files
+Read files generated using the [Seurat](https://satijalab.org/seurat/) package. Seuratobject is not compatible with Spline-DV as it needs matrix or sparse matrix objects. Hence we extract the count matrix stored within the Seurat object. **The two experimental conditions to be tested should be input as two separate files.** 
 ```R
-# Reading a Seurat RDS file
-exprMatrix <- readRDS('mySingleCellExperiment.rds')
-exprMatrix <- Seurat::GetAssayData(exprMatrix, layers = 'count') # Extract counts
-
-# Reading two Seurat RDS file
-exprMatrix_1 <- readRDS('mySingleCellExperiment_1.rds')
-exprMatrix_1 <- Seurat::GetAssayData(exprMatrix_1, layers = 'count') # Extract counts
-exprMatrix_2 <- readRDS('mySingleCellExperiment_2.rds')
-exprMatrix_2 <- Seurat::GetAssayData(exprMatrix_2, layers = 'count') # Extract counts
+# Extract dgCMatrix from two Seurat RDS files
+exprMatrix_1 <- Seurat::GetAssayData(seuratObj_1, layers = 'count') # Extract counts
+exprMatrix_2 <- Seurat::GetAssayData(seuratObj_1, layers = 'count') # Extract counts
 ```
-# Tutorial - Spline-DV
-## Loading scRNAseq count example data
-The example data is borrowed from an experimental *Nkx2-1* Gene knockout scRNA-seq study by Liebler *et al.* [1]
+### Running Spline-DV
+For the analysis, the test data (X) is always used in contrast with the control data (Y).
 ```R
-# Load Data
-library(SplineDV)
-load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
-load(system.file("extdata", "KO_count.rda", package = "SplineDV")) # KO Sample
-```
-
-## Running Spline-DV
-For the analysis, the test data (X) is always use in contrast with the control data (Y).
-```R
-DV_res <- DV_splinefit(X = KO_count, Y = WT_count, ncells = 3, ncounts = 200)
+DV_res <- splineDV(X = exprMatrix_1, Y = exprMatrix_1)
 head(DV_res)
 ```
 ## Visualize Gene Expression statistics
 ```R
-DV_plot(DV_res)
+DVPlot(DV_res)
 ```
 ![image](https://github.com/user-attachments/assets/4d17a58b-5ce0-4ad4-a65f-f7b7b01f3ebf)
 
-# Tutorial - Spline-HVG
-```R
-## Loading Data
-load(system.file("extdata", "WT_count.rda", package = "SplineDV")) # WT Sample
 
-## Running Spline-HVG
-HVG_res <- HVG_splinefit(WT_count, nHVGs = 20, ncells = 3, ncounts = 200)
-head(HVG_res)
-```
-## Visualize Highly Variable Genes
-```R
-HVG_plot(HVG_res)
-```
-![image](https://github.com/user-attachments/assets/5942ef6e-cdd8-496c-a316-b3cfa60826e7)
+# Conclusion
 
-```R
-# Plot individual genes
-HVG_plot(HVG_res,'Eln') 
-```
-![image](https://github.com/user-attachments/assets/7862108c-06cf-4769-8b32-b3248a1ce464)
+SplineDV is a valuable tool for single-cell RNA sequencing (scRNA-seq) analysis, specifically designed to identify differential gene expression variability between conditions. By examining changes in expression dispersion, SplineDV complements traditional differential expression analysis methods. We recommend using SplineDV in conjunction with other tools from Seurat and Bioconductor to gain a more comprehensive understanding of biological processes.
 
-# References
-1. Liebler JM, Marconett CN, Juul N, et al. Combinations of differentiation markers distinguish subpopulations of alveolar epithelial cells in adult lung. Am J Physiol Lung Cell Mol Physiol. 2016;310(2):L114-L120. doi:10.1152/ajplung.00337.2015
