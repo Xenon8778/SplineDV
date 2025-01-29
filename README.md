@@ -129,7 +129,7 @@ exprMatrix_2 <- Seurat::GetAssayData(seuratObj_1, layers = 'count') # Extract co
 ### Running Spline-DV
 For the analysis, the test data (X) is always used in contrast with the control data (Y).
 ```R
-DV_res <- splineDV(X = exprMatrix_1, Y = exprMatrix_1)
+DV_res <- splineDV(X = exprMatrix_1, Y = exprMatrix_2)
 head(DV_res)
 ```
 ## Visualize Gene Expression statistics
