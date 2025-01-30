@@ -11,7 +11,8 @@ splineDV(
   ncells = 15,
   spar = 0.5,
   mtPerc = 15,
-  detailed = FALSE
+  detailed = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ splineDV(
 \item{mtPerc}{A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.}
 
 \item{detailed}{A boolean value. Defines whether to add individual splineHVG DataFrame to the output.}
+
+\item{verbose}{A Boolean value (TRUE/FALSE), if TRUE, prints messages.}
 }
 \value{
 A DataFrame with DV Statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline for each sample. The distance across conditions is stored in "vectorDist". P values are computed assuming normal distribution of distance differences.

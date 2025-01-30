@@ -98,7 +98,7 @@ dvRes <- splineDV(X = tumorCount, Y = healthyCount)
 head(dvRes)
 ```
 
-The output is a DataFrame containing statistical measures for each gene in the differential variability (DV) analysis. Genes with large vectorDist values exhibit substantial changes in expression variability between the two experimental conditions. Genes with FDR values below 0.05 are considered significantly differentially variable. The Direction column indicates whether the variability increased or decreased. By leveraging this information, we can identify biologically relevant genes that not only demonstrate shifts in mean expression but also alterations in expression variability across conditions.
+The output is a DataFrame containing statistical measures for each gene in the differential variability (DV) analysis. Genes with large vectorDist values exhibit substantial changes in expression variability between the two experimental conditions. Genes with P values below 0.05 are considered significantly differentially variable. The Direction column indicates whether the variability increased or decreased. By leveraging this information, we can identify biologically relevant genes that not only demonstrate shifts in mean expression but also alterations in expression variability across conditions.
 
 ## Visualize Gene Expression statistics
 

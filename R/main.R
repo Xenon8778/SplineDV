@@ -22,6 +22,7 @@
 #' @param spar A double value. Smoothing parameter for Spline.
 #' @param nHVGs An integer value. Number of top Highly Variable Genes (HVGs) to select.
 #' @param use.ndist A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.
+#' @param verbose A Boolean value (TRUE/FALSE), if TRUE, prints messages.
 #' @examples
 #' # example code
 #' ## Generate example count data
@@ -32,8 +33,9 @@
 #' res <- splineHVG(X)
 
 splineHVG <- function(X, QC=TRUE,
-                          ncounts=1000, ncells=15, mtPerc=15,
-                          spar=0.5, nHVGs=2000, use.ndist=TRUE){
+                      ncounts=1000, ncells=15, mtPerc=15,
+                      spar=0.5, nHVGs=2000, use.ndist=TRUE,
+                      verbose=TRUE){
 
   # Check if object is SingleCellExperiment
   if (is(X,"SingleCellExperiment")){
@@ -51,7 +53,7 @@ splineHVG <- function(X, QC=TRUE,
   if (QC == TRUE){
     adata <- hvgQC(adata, ncounts=ncounts, ncells=ncells,
                    mtPerc=mtPerc)
-    message('QC done')
+    if(verbose) message('QC done')
   }
 
   # Checking if object has enough genes
@@ -62,7 +64,7 @@ splineHVG <- function(X, QC=TRUE,
   countData <- SummarizedExperiment::assay(adata, 'counts')
 
   # Normalizing
-  message('Performing normalization...')
+  if(verbose) message('Performing normalization...')
   NormData <- BiocGenerics::t(BiocGenerics::t(countData) / Matrix::colSums(countData)) *
     mean(Matrix::colSums(countData), na.rm=TRUE)
 
@@ -86,7 +88,7 @@ splineHVG <- function(X, QC=TRUE,
   diffDropr <- diff(splinefitDF$Dropout)
   diffSquaredSum <- diffLgu^2 + diffLgcv^2 + diffDropr^2
 
-  message('Computing distances...')
+  if(verbose) message('Computing distances...')
   # Calculate the cumulative sum
   s <- c(0, cumsum(sqrt(diffSquaredSum)))
   xyz <- splinefitDF %>% dplyr::select(logMean,logCV,Dropout)
@@ -153,7 +155,7 @@ splineHVG <- function(X, QC=TRUE,
   splinefitDF <- splinefitDF %>% arrange(-Distance)
   splinefitDF <- DataFrame(splinefitDF)
 
-  message('HVG computed')
+  if(verbose) message('HVG computed')
   return(splinefitDF)
 }
 
@@ -368,6 +370,7 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' @param spar A double value. Smoothing parameter for Spline.
 #' @param mtPerc A double value. Defines the minimum percent mitochondrial genes expression required for a cell to be excluded from the analysis.
 #' @param detailed A boolean value. Defines whether to add individual splineHVG DataFrame to the output.
+#' @param verbose A Boolean value (TRUE/FALSE), if TRUE, prints messages.
 #' @examples
 #' # example code
 #' ## Generate example count data
@@ -380,7 +383,7 @@ DVPlot <- function(df, targetgene=NULL, ptSize=3, lwd=5, dlwd=7){
 #' res <- splineDV(X, Y)
 
 splineDV <- function(X, Y, ncounts=1000, ncells=15, spar=0.5,
-                         mtPerc=15, detailed=FALSE) {
+                         mtPerc=15, detailed=FALSE, verbose=TRUE) {
 
   # QC Filtering
   X <- hvgQC(X, ncounts = ncounts, ncells = ncells,
@@ -394,10 +397,10 @@ splineDV <- function(X, Y, ncounts=1000, ncells=15, spar=0.5,
   Y <- Y[feat,]
 
   # Computing distances
-  message('Computing distances for Data 1')
-  res_X <- splineHVG(X, QC = FALSE, spar = spar)
-  message('Computing distances for Data 2')
-  res_Y <- splineHVG(Y, QC = FALSE, spar = spar)
+  if(verbose) message('Computing distances for Data 1')
+  res_X <- splineHVG(X, QC = FALSE, spar = spar, verbose = verbose)
+  if(verbose) message('Computing distances for Data 2')
+  res_Y <- splineHVG(Y, QC = FALSE, spar = spar, verbose = verbose)
 
   # Intersect gene space of the two data sets
   feat <- intersect(rownames(res_X),rownames(res_Y))
@@ -441,13 +444,12 @@ splineDV <- function(X, Y, ncounts=1000, ncells=15, spar=0.5,
     mutate('Direction'=sign(dist1 - dist2)) %>%
     mutate('Z'= as.numeric(scale(vectorDist))) %>%
     mutate('Pval' = 2*pnorm(abs(Z), lower.tail = FALSE)) %>%
-    mutate('FDR' = p.adjust(Pval, 'BH')) %>%
-    arrange(FDR)
+    arrange(Pval)
 
   resOut <- DVres %>% select(genes, mu1, mu2, CV1, CV2, drop1, drop2,
                              dist1, dist2, X_splinex, X_spliney, X_splinez,
                              Y_splinex, Y_spliney, Y_splinez,
-                             vectorDist, Direction, Pval,FDR) %>%
+                             vectorDist, Direction, Pval) %>%
     as.data.frame()
   resOut <- DataFrame(resOut)
 

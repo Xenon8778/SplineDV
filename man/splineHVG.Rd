@@ -12,7 +12,8 @@ splineHVG(
   mtPerc = 15,
   spar = 0.5,
   nHVGs = 2000,
-  use.ndist = TRUE
+  use.ndist = TRUE,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ splineHVG(
 \item{nHVGs}{An integer value. Number of top Highly Variable Genes (HVGs) to select.}
 
 \item{use.ndist}{A Boolean value (TRUE/FALSE), if TRUE, computes the nearest point on spline by nearest-neighbor search (TRUE Recommended). Else, uses the position of the corresponding gene on the spline for distance computation.}
+
+\item{verbose}{A Boolean value (TRUE/FALSE), if TRUE, prints messages.}
 }
 \value{
 A DataFrame with highly variable gene selection statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline. A higher distance signifies higher variability.
