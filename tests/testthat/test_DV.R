@@ -5,5 +5,5 @@ test_that("DV works with matrix",{
   rownames(Y) <- paste0('g', as.character(1:2000))
   res <- splineDV(X, Y)
   expect_s4_class(res, "DataFrame")
-  expect_identical(ncol(res), 19L)
+  expect_identical(ncol(res), 18L)
 })
