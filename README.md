@@ -10,8 +10,14 @@ One of the most intuitive ways to evaluate a gene expression change is using Dif
 Gatlin, V., Gupta, S., Romero, S., Chapkin, R., & Cai, J. J. (2024). Beyond Differential Expression: Embracing Cell-to-Cell Variability in Single-Cell Gene Expression Data Analysis. bioRxiv, 2024-08. doi: [doi.org/10.1101/2024.08.08.607086](doi.org/10.1101/2024.08.08.607086)
 
 # Installation 
-### Stable Bioconductor release 
+### Stable Bioconductor release (currently only in the devel branch)
 ```R
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# The following initializes usage of Bioc devel
+BiocManager::install(version='devel')
+
 BiocManager::install("Xenon8778/SplineDV")
 ```
 ### Developer version 
