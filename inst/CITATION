@@ -1,8 +1,8 @@
 bibentry(
   bibtype  = "Article",
-  title    = "Beyond Differential Expression: Embracing Cell-to-Cell Variability in Single-Cell Gene Expression Data Analysis",
+  title    = "Exploring cell-to-cell variability and functional insights through differentially variable gene analysis",
   author   = c(person("Victoria", "Gatlin"), person("Shreyan", "Gupta"), person("Selim", "Romero"), person("Robert", "Chapkin"), person("James", "Cai")),
-  journal  = "bioRxiv",
-  year     = "2024",
-  doi      = "https://doi.org/10.1101/2024.08.08.607086"
+  journal  = "npj systems biology and applications",
+  year     = "2025",
+  doi      = "https://doi.org/10.1038/s41540-025-00507-z"
 )
