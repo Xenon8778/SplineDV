@@ -18,7 +18,7 @@ Imports:
     dplyr,
     scuttle,
     methods,
-    Biobase,
+    FNN,
     BiocGenerics,
     S4Vectors,
     sparseMatrixStats,
@@ -26,7 +26,7 @@ Imports:
     SummarizedExperiment,
     Matrix (>= 1.6.4),
     utils
-Suggests: 
+Suggests:
     knitr,
     DelayedMatrixStats,
     rmarkdown,
@@ -38,5 +38,5 @@ Suggests:
     scRNAseq,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
-RoxygenNote: 7.3.2
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

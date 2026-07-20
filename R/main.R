@@ -10,7 +10,7 @@
 #' @importFrom sparseMatrixStats rowSds
 #' @importFrom Matrix rowSums rowMeans
 #' @importFrom utils setTxtProgressBar txtProgressBar
-#' @importFrom Biobase matchpt
+#' @importFrom FNN get.knnx
 #' @importFrom stats smooth.spline predict p.adjust
 #' @importFrom methods as is
 #' @return A DataFrame with highly variable gene selection statistics. The statistics include log1p(mean), log1p(CV), dropout rates, nearest point on spline (splinex, spliney and splinez) and distance from spline. A higher distance signifies higher variability.
@@ -115,17 +115,29 @@ splineHVG <- function(X, QC=TRUE,
     names(distDF) <- c('distHVG')
     splinefitDF$Distance <- distDF$distHVG
   } else {
-    df <- as.matrix(xyz1)
-    p1 <- as.list(as.data.frame(t(xyz)))
-    distDF <- as.data.frame(
-      do.call('rbind', lapply(p1, FUN=function(p){
-        p <- t(as.matrix(p))
-        nearPoint <- matchpt(p, df) # Computing nearest point on spline
-        d <- p - df[nearPoint$index,] # Computing distance vector
-        return(c(nearPoint$distance, d[1], d[2], d[3], nearPoint$index))
-        }))
-    )
-    colnames(distDF) <- c('distHVG', 'dvecx', 'dvecy', 'dvecz', 'nearidx')
+    df   <- as.matrix(xyz1)
+    gmat <- do.call(rbind, as.list(as.data.frame(t(xyz))))  # G x 3
+    # fast batch KD-tree nearest-neighbour (FNN) replacing serial matchpt() loop
+    # O(G log M) instead of O(G x M)
+    nn     <- FNN::get.knnx(data = df, query = gmat, k = 1L)
+    idx    <- nn$nn.index[, 1L]
+    d      <- gmat - df[idx, ]
+    distDF <- data.frame(distHVG = nn$nn.dist[, 1L],
+                         dvecx   = d[, 1L],
+                         dvecy   = d[, 2L],
+                         dvecz   = d[, 3L],
+                         nearidx = idx)
+    # old serial loop (kept for reference):
+    # p1 <- as.list(as.data.frame(t(xyz)))
+    # distDF <- as.data.frame(
+    #   do.call('rbind', lapply(p1, FUN=function(p){
+    #     p <- t(as.matrix(p))
+    #     nearPoint <- matchpt(p, df)
+    #     d <- p - df[nearPoint$index,]
+    #     return(c(nearPoint$distance, d[1], d[2], d[3], nearPoint$index))
+    #   }))
+    # )
+    # colnames(distDF) <- c('distHVG', 'dvecx', 'dvecy', 'dvecz', 'nearidx')
 
     splinefitDF$Distance <- distDF$distHVG
     splinefitDF$nearidx <- distDF$nearidx
